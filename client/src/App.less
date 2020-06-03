@@ -1,0 +1,146 @@
+@import '~antd/dist/antd.less';
+
+.body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+footer {
+  position : fixed;
+  bottom : 0;
+  height : 2em;
+  line-height : 2em;
+  padding: 0 1em;
+  color: #0E1D1A;
+  font-size: 1.2em;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(18deg, #68EB64, #2DA1E6) fixed;
+}
+
+.navbar {
+  //position : fixed;
+  //top : 0;
+  //height : 2em;
+  //width: 100%;
+
+  display: block;
+  padding-top: 1em;
+  padding-bottom: 5em;
+  background: white;
+}
+
+.gradient {
+  background: linear-gradient(18deg, #68EB64, #2DA1E6) fixed;
+  height: 100vh;
+  max-height: 100vh;
+}
+
+.home {
+  text-align: center;
+}
+
+.title {
+  font-family: 'Abril Fatface', cursive;
+  margin: 0;
+}
+
+.subtitle {
+  display: block;
+  margin-bottom: 1em;
+}
+
+// Web layout
+@media screen and (min-width: 601px) {
+  .title {
+    font-size: 12em;
+  }
+
+  .subtitle {
+    font-size: 3em;
+  }
+
+  .searchBox {
+    width: 50%;
+  }
+}
+
+// Mobile layout
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 6em;
+  }
+
+  .subtitle {
+    font-size: 2em;
+  }
+  .searchBox {
+    width: 100%;
+  }
+}
+
+.playlistCard {
+  width: 100%;
+  border-radius: 1em;
+}
+
+.playlistImage {
+  margin-top: -1em;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+}
+
+.root {
+  font-family: Arial, sans-serif;
+}
+
+.playlists {
+  text-align: center;
+}
+
+.ant-list-item {
+  border-bottom: none;
+}
+
+.parameters {
+  margin-top: 1em;
+  padding: 1em;
+}
+
+.collapse-parameters {
+  border: none;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.parameters-panel {
+  border-radius: 1em;
+  background: #F7F7F7;
+}
+
+.rounded-component {
+  background: #F7F7F7;
+  border-radius: 1em;
+
+  .ant-collapse-item {
+    border: none;
+  }
+}
+
+.rounded {
+  border-radius: 1em;
+}
+
+.center {
+  //margin: auto auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+}
+
+.spotify-login {
+  background-color: #68EB64;
+  border: 1px solid #68EB64;
+}
