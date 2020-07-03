@@ -2,3 +2,5 @@
 
 # Idea config files
 **/.idea/
+
+**/*.env
