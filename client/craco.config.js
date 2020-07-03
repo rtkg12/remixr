@@ -1,18 +1,31 @@
-const CracoLessPlugin = require('craco-less');
+const reactHotReloadPlugin = require('craco-plugin-react-hot-reload');
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const WebpackBar = require("webpackbar");
+const CracoAntDesignPlugin = require("craco-antd");
+const path = require("path");
+
+// Don't open the browser during development
+process.env.BROWSER = "none";
 
 module.exports = {
+    webpack: {
+        plugins: [
+            new WebpackBar({ profile: true }),
+            ...(process.env.NODE_ENV === "development"
+                ? [new BundleAnalyzerPlugin({ openAnalyzer: false })]
+                : [])
+        ]
+    },
     plugins: [
+        { plugin: reactHotReloadPlugin },
         {
-            plugin: CracoLessPlugin,
+            plugin: CracoAntDesignPlugin,
             options: {
-                lessLoaderOptions: {
-                    modifyVars: {
-                        '@primary-color': '#1890ff',
-                        '@layout-body-background': 'white'
-                    },
-                    javascriptEnabled: true,
-                },
-            },
-        },
-    ],
+                customizeThemeLessPath: path.join(
+                    __dirname,
+                    "src/antd.customize.less"
+                )
+            }
+        }
+    ]
 };

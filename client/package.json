@@ -10,13 +10,17 @@
     "@testing-library/user-event": "^7.2.1",
     "antd": "^4.2.5",
     "axios": "^0.19.2",
-    "craco-less": "^1.16.0",
+    "craco-antd": "^1.18.0",
     "js-cookie": "^2.2.1",
+    "path": "^0.12.7",
+    "rc-tween-one": "^2.7.2",
     "react": "^16.13.1",
+    "react-autosuggest": "^10.0.2",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "serve": "^11.3.1"
+    "serve": "^11.3.2",
+    "spotify-web-api-node": "^4.0.0"
   },
   "scripts": {
     "start": "craco start",
@@ -38,5 +42,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@hot-loader/react-dom": "^16.13.0",
+    "craco-plugin-react-hot-reload": "^0.1.0",
+    "react-hot-loader": "^4.12.21",
+    "webpack-bundle-analyzer": "^3.8.0",
+    "webpackbar": "^4.0.0"
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout} from 'antd';
+import { hot } from 'react-hot-loader';
 
 import Home from "./components/Home";
 import Playlist from "./components/Playlists";
@@ -37,4 +38,4 @@ function App() {
   );
 }
 
-export default App;
+export default hot(module)(App);

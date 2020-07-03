@@ -17,23 +17,19 @@ const Navbar = () => {
             {redirectPath ?
                 <Redirect to={redirectPath}/> :
                 <div className="navbar">
-                    <Button
-                        style={{
+                        <a style={{
+                            fontFamily: "'Abril Fatface', cursive",
+                            fontSize: "2.5em",
+                            color: "#262626",
                             float: "left",
                             border: "none",
                             padding: 0,
-                        }}
-                        type="text"
-                        onClick={() => setRedirectPath("/")}
-                    >
-                        <span style={{
-                            fontFamily: "'Abril Fatface', cursive",
-                            fontSize: "2.5em",
-                            color: "#262626"
-                        }}>
+                            }}
+                            onClick={() => setRedirectPath("/")}
+                        >
                             remixr
-                        </span>
-                    </Button>
+                        </a>
+                    {/*</Button>*/}
                     <Button
                         shape="round"
                         size="large"
