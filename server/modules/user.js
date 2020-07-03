@@ -56,24 +56,17 @@ function isLoggedIn(req, res, next) {
   }
 }
 
-function refreshToken(req, res, next) {
-  return new Promise((resolve, reject) => {
-    createLoggedInUser(req, res).then(loggedInSpotify => {
-      loggedInSpotify.refreshAccessToken().then(
-        function(data) {
-          console.log('The access token has been refreshed!');
-          // Save the access token so that it's used in future calls
-          loggedInSpotify.setAccessToken(data.body.access_token);
-          resolve(data.body.access_token);
-        },
-        function(err) {
-          console.log('Could not refresh access token', err);
-          reject();
-        }
-      );
-    });
+async function refreshToken(refresh_token) {
+  const spotifyApi = new SpotifyWebApi({
+    redirectUri,
+    clientId,
+    clientSecret,
   });
+  spotifyApi.setRefreshToken(refresh_token);
+
+  return await spotifyApi.refreshAccessToken();
 }
+
 /**
  * Returns an instance of logged in spotify using the credentials
  * @param {*} access_token

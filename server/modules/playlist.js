@@ -322,7 +322,7 @@ async function getRecommendations(loggedInSpotify, parameters) {
 
 async function createNewPlaylist(loggedInSpotify, playlistName, tracks) {
   let userID = await user.getUserId(loggedInSpotify);
-  let response = await loggedInSpotify.createPlaylist('rtkg12', playlistName);
+  let response = await loggedInSpotify.createPlaylist(userID, playlistName);
   let link = response.body.external_urls.spotify;
   let playlistID = response.body.id;
   await loggedInSpotify.addTracksToPlaylist(playlistID, tracks);

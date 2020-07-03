@@ -21,10 +21,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.get('/login', function(req, res) {
+app.get('/login', async function(req, res) {
   user.login().then(ret => {
     res.cookie('stateKey', ret.state);
-    res.redirect(ret.authorizeURL);
+    let authorizeURL = `${ret.authorizeURL}&show_dialog=true`;
+    res.redirect(authorizeURL);
   });
 });
 
@@ -54,15 +55,18 @@ app.get('/callback', function(req, res) {
   }
 });
 
-app.get('/refresh', (req, res) => {
-  user.refreshToken(req, res).then(newAccessToken => {
-    const exp_duration = 3600;
-    const exp_time = Date.now() + (exp_duration - 1) * 1000;
-
-    res.cookie('access_token', newAccessToken);
-    res.cookie('expiry_time', exp_time);
-    res.redirect('/');
-  });
+app.get('/refresh', async (req, res) => {
+  try {
+    console.log(req.cookies.refresh_token);
+    let data = await user.refreshToken(req.cookies.refresh_token);
+    res.json({
+      access_token: data.body.access_token,
+      maxAge: data.body.expires_in * 0.95 * 1000
+    });
+  } catch (e) {
+    console.log("Error while refreshing token");
+    console.log(e);
+  }
 });
 
 app.get('/playlists', async (req, res) => {
