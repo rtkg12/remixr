@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react'
-import {Redirect} from "react-router-dom";
 import axios from 'axios';
+import Vibrant from 'node-vibrant'
 import {Row, Col, Collapse, Typography, Affix, Tag, message, Space} from 'antd';
-import { TweenOneGroup } from 'rc-tween-one';
 
 import ParametersMenu from "./ParametersMenu";
 import SavePlaylist from "./SavePlaylist";
@@ -39,6 +38,7 @@ export default function Results(props) {
     const [valence, setValence] = useState({min: 0, max: 1});
     const [tempo, setTempo] = useState({min: 50, max: 200});
     const [seeds, setSeeds] = useState();
+    const [seedColors, setSeedColors] = useState({});
 
     // Fetch initial songs and load
     useEffect(() => {
@@ -134,13 +134,28 @@ export default function Results(props) {
         }
     }, [count, popularity, danceability, energy, tempo, acousticness, valence, seeds])
 
+    // Calculate colors for seeds
+    useEffect(() => {
+        console.log("Calculating colors");
+        // Using IIFE for async effect
+        seeds && seeds.artists && seeds.tracks && ( async () => {
+            let items = [...seeds.artists, ...seeds.tracks];
+            let promiseArray = [...seeds.artists, ...seeds.tracks].map(item => Vibrant.from(item.image).getPalette().then(palette => palette.Vibrant._rgb.toString()));
+            let colors = await Promise.all(promiseArray);
+
+            let colorStyles = {};
+
+            for (let i = 0; i < items.length; i++) {
+                colorStyles[items[i].id] = `rgba(${colors[i]},0.4)`;
+            }
+
+            setSeedColors(colorStyles);
+        })();
+    }, [seeds]);
+
     // If invalid access
     // if (!props.location.state || !props.location.state.playlist) {
     //     return <Redirect to="/"/>
-    // }
-
-    // const updatePlaylist = () => {
-    //
     // }
 
     const savePlaylist = () => {
@@ -183,14 +198,16 @@ export default function Results(props) {
         <Space className="tagsList" size={1}>
             {seeds && seeds.artists && seeds.artists.map(artist =>
                 <Tag
+                    style={seedColors && seedColors[artist.id] && {backgroundColor: seedColors[artist.id]}}
                     className="seedTag"
+                    key={artist.id}
                     closable
                     onClose={e => {
                         e.preventDefault();
                         removeSeed(artist, "artist");
                     }}
                 >
-                    <img src={artist.image} width={60} height={60}/>
+                    <img src={artist.image} width={60} height={60} alt=""/>
                     <div className="tagName">
                         <span>
                             {artist.name}
@@ -202,13 +219,15 @@ export default function Results(props) {
             {seeds && seeds.tracks && seeds.tracks.map(track =>
                 <Tag
                     className="seedTag"
+                    style={seedColors && seedColors[track.id] && {backgroundColor: seedColors[track.id]}}
+                    key={track.id}
                     closable
                     onClose={e => {
                         e.preventDefault();
                         removeSeed(track, "track");
                     }}
                 >
-                    <img src={track.image} width={60} height={60}/>
+                    <img src={track.image} width={60} height={60} alt=""/>
                     <div className="tagName">
                         <span>
                             {track.name}
