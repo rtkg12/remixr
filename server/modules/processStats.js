@@ -81,7 +81,7 @@ function buildRecommendationOptions(parameters, seed_artists, seed_tracks) {
   }
   options.seed_artists = seed_artists;
   options.seed_tracks = seed_tracks;
-  options.limit = 100;
+  options.limit = 25;
 
   return options;
 }

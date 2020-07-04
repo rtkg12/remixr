@@ -6,6 +6,7 @@ const { Text } = Typography;
 export default function ParametersMenu(props) {
     console.log("Rendered Parameters");
     console.log(props);
+
     const onChangeHandler = (value, handler) => {
         handler({
             min: value[0],
@@ -16,6 +17,15 @@ export default function ParametersMenu(props) {
     return (
         <div>
             <div style={{}}>
+                <Text>Number of songs</Text>
+                <Slider
+                    min={10}
+                    max={100}
+                    defaultValue={props.values.count}
+                    onAfterChange={(value) => props.handlers.setCount(value)}
+                    step={5}
+                />
+
                 <Text>Popularity</Text>
                 <Slider
                     range={true}

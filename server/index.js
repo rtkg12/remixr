@@ -57,7 +57,6 @@ app.get('/callback', function(req, res) {
 
 app.get('/refresh', async (req, res) => {
   try {
-    console.log(req.cookies.refresh_token);
     let data = await user.refreshToken(req.cookies.refresh_token);
     res.json({
       access_token: data.body.access_token,

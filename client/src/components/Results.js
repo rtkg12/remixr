@@ -31,6 +31,7 @@ export default function Results(props) {
     const [generatedPlaylistLink, setGeneratedPlaylistLink] = useState();
     const [error, setError] = useState(false);
     // Parameters
+    const [count, setCount] = useState(25);
     const [popularity, setPopularity] = useState({min: 0, max: 100});
     const [danceability, setDanceability] = useState({min: 0, max: 1});
     const [energy, setEnergy] = useState({min: 0, max: 1});
@@ -126,13 +127,12 @@ export default function Results(props) {
             setGeneratedPlaylistLink(null);
 
             let parameters = {popularity, danceability, energy, acousticness, valence, tempo};
-            let limit = 100;
-            getRecommendations(accessToken, parameters, seeds, limit).then(songs => {
+            getRecommendations(accessToken, parameters, seeds, count).then(songs => {
                 setSongs(songs);
                 setLoading(false);
             }).catch(error => console.log(error));
         }
-    }, [popularity, danceability, energy, tempo, acousticness, valence, seeds])
+    }, [count, popularity, danceability, energy, tempo, acousticness, valence, seeds])
 
     // If invalid access
     // if (!props.location.state || !props.location.state.playlist) {
@@ -219,6 +219,15 @@ export default function Results(props) {
         </Space>
     )
 
+    const parametersMenu = <ParametersMenu
+        values={
+            {count, energy, popularity, danceability, tempo, acousticness, valence}
+        }
+        handlers={
+            {setCount, setEnergy, setPopularity, setDanceability, setTempo, setAcousticness, setValence}
+        }
+    />
+
     if (error) {
         return (
             <ErrorScreen/>
@@ -243,16 +252,7 @@ export default function Results(props) {
                     }
                     <Collapse bordered={false} className="collapse-parameters rounded-component">
                         <Panel header="Tune Playlist Settings" key="1">
-                            {!loading &&
-                            <ParametersMenu
-                                values={
-                                    {energy, popularity, danceability, tempo, acousticness, valence}
-                                }
-                                handlers={
-                                    {setEnergy, setPopularity, setDanceability, setTempo, setAcousticness, setValence}
-                                }
-                            />
-                            }
+                            {!loading && parametersMenu}
                         </Panel>
                     </Collapse>
                 </Col>
@@ -274,14 +274,7 @@ export default function Results(props) {
                         {!loading &&
                         <div className="parameters rounded-component">
                             <Title style={{textAlign: "center"}} level={3}>Tune playlist settings</Title>
-                            <ParametersMenu
-                                values = {
-                                    {energy, popularity, danceability, tempo, acousticness, valence}
-                                }
-                                handlers = {
-                                    {setEnergy, setPopularity, setDanceability, setTempo, setAcousticness, setValence}
-                                }
-                            />
+                            {parametersMenu}
                         </div>
                         }
                     </Affix>

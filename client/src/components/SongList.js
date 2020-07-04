@@ -19,6 +19,7 @@ const SongList = (props) => {
     return (
         <List
             size='small'
+            style={{marginBottom: "1em"}}
             itemLayout="horizontal"
             loading={props.loading}
             dataSource={props.songs}
