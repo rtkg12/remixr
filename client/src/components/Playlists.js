@@ -1,15 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Link, Redirect} from "react-router-dom";
-import {Divider, Input, Row, Col, Card, Typography, Skeleton, AutoComplete} from 'antd';
+import {Redirect} from "react-router-dom";
+import {Divider, Input, Row, Typography, Skeleton, AutoComplete} from 'antd';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Navbar from "./Navbar";
 import ErrorScreen from "./ErrorScreen";
 import PlaylistCard from "./PlaylistCard";
 
-const { Meta } = Card;
 const { Title } = Typography;
-
 
 const transport = axios.create({
     withCredentials: true
@@ -68,7 +66,7 @@ export default function Playlist() {
                     {loading && <Skeleton active />}
                     {filteredPlaylists && filteredPlaylists.map(item => {
                         return (
-                            <PlaylistCard playlist={item}/>
+                            <PlaylistCard playlist={item} key={item.id}/>
                         )
                     })}
                 </Row>
