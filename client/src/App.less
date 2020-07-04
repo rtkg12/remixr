@@ -45,8 +45,17 @@ footer {
   margin-bottom: 1em;
 }
 
-.searchBox input {
-  border-radius: 10px;
+.searchBox {
+  input {
+    border-radius: 10px;
+    //background-color: rgba(0, 0, 0, 0.05);
+    //border: none;
+    //color: black;
+  }
+
+  ::placeholder {
+    //color: fade(@black, 65%);
+  }
 }
 
 .ant-divider-horizontal.ant-divider-with-text-center::before,

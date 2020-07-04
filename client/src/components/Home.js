@@ -47,11 +47,10 @@ function Home() {
                         margin: "0 auto"
                     }}
                 >
-                    <SearchSeeds/>
-                    <Divider> Or </Divider>
+                    <SearchSeeds />
                 </div>
                 <Link to="/playlists">
-                    <Button type="primary" shape="round" size="large" className="highlight">
+                    <Button type="primary" shape="round" size="large" className="highlight" style={{marginTop: "0.5em"}}>
                         Select from my playlists
                     </Button>
                 </Link>

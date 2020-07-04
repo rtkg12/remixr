@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {AutoComplete, Input} from 'antd';
 import {Redirect} from "react-router-dom";
 
@@ -39,7 +39,7 @@ const SearchSeeds = (props) => {
         value: item.id,
         label: (
             <div>
-                <img src={item.image} className="rounded" width="50" height="50"/>
+                <img src={item.image} className="rounded" width="50" height="50" alt=""/>
                 <span
                     style={{
                         marginLeft: "1em"
