@@ -134,6 +134,17 @@ app.post('/save', async (req, res) => {
   }
 });
 
+app.get('/search', async (req, res) => {
+  try {
+    const spotify = await user.createAPI();
+    const { searchTerm, types, limit } = req.query;
+    const results =  await spotify.search(searchTerm, types, {limit});
+    res.json({body: results.body});
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 app.listen(8080, function() {
   console.log('Spotify playlist generator started');
 });

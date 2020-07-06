@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Avatar, Col, List} from "antd";
-import {CaretRightOutlined, PauseOutlined} from "@ant-design/icons";
+import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
+import PauseOutlined from "@ant-design/icons/PauseOutlined";
 
 const SongList = (props) => {
     const [sound, setSound] = useState();
@@ -25,7 +26,10 @@ const SongList = (props) => {
             dataSource={props.songs}
             renderItem={item => (
                 <List.Item
-                    style={{borderBottom: 'none'}}
+                    className="playlistItem"
+                    style={{
+                        borderBottom: 'none'
+                    }}
                     key={item.id}
                     onMouseEnter={() => { playPreview(item.preview_url, item.id) }}
                     onMouseLeave={ stopPreview }

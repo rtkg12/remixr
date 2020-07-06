@@ -1,7 +1,9 @@
 const SpotifyWebApi = require('spotify-web-api-node');
+const axios = require('axios');
 
 const DEFAULT_ARTIST_IMAGE = "https://static.thenounproject.com/png/82078-200.png";
 const DEFAULT_TRACK_IMAGE = "https://static.thenounproject.com/png/82078-200.png";
+const URI = process.env.REACT_APP_API_URL;
 
 const authenticate = (accessToken) => {
     const spotifyApi = new SpotifyWebApi();
@@ -15,8 +17,24 @@ module.exports.getGenres = async (accessToken) => {
 }
 
 module.exports.search = async (accessToken, searchTerm) => {
-    const spotifyApi = authenticate(accessToken);
-    return await spotifyApi.search(searchTerm, ['track', 'artist'], {limit: 5});
+    let types = ['track', 'artist'];
+    let limit = 5;
+    let response;
+
+    if (accessToken) { // Logged in
+        const spotifyApi = authenticate(accessToken);
+        response = await spotifyApi.search(searchTerm, types, {limit});
+    } else {
+        response = await axios.get(`${URI}/search`, {
+            params: {searchTerm, types, limit}
+        });
+        response = response.data;
+    }
+
+    return {
+        artists: response.body.artists.items,
+        tracks: response.body.tracks.items
+    }
 }
 
 module.exports.getRecommendations = async (accessToken, parameters, seeds, limit) => {

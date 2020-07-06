@@ -84,8 +84,6 @@ function createLoggedInUser(req, res) {
     loggedInSpotify.setAccessToken(req.cookies.access_token);
     loggedInSpotify.setRefreshToken(req.cookies.refresh_token);
 
-    // loggedInSpotify.getMe();
-
     resolve(loggedInSpotify);
   });
 }
@@ -98,6 +96,17 @@ function getUserId(loggedInSpotify) {
   });
 }
 
+async function createAPI() {
+  const spotify = new SpotifyWebApi({
+    redirectUri,
+    clientId,
+    clientSecret,
+  });
+  const data = await spotify.clientCredentialsGrant();
+  spotify.setAccessToken(data.body.access_token);
+  return spotify;
+}
+
 module.exports = {
   isLoggedIn,
   refreshToken,
@@ -105,4 +114,5 @@ module.exports = {
   getUserId,
   login,
   spotifyApi,
+  createAPI
 };

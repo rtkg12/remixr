@@ -22,7 +22,7 @@ footer {
   display: block;
   padding-top: 1em;
   padding-bottom: 5em;
-  background: white;
+  background: rgba(255,255,255, 0.97);
 }
 
 .gradient {
@@ -77,6 +77,24 @@ footer {
   .searchBox {
     width: 50%;
   }
+
+  .playlistItem {
+    margin-right: 3em;
+    border-radius: 10px;
+    transition: background 0.5s;
+    &:hover {
+      background-color: rgba(24, 144, 255, 0.2);
+    }
+  }
+}
+
+button.ant-btn.greenButton.ant-btn-round.ant-btn-lg {
+  position: absolute;
+  right: 5%;
+  margin-top: 1.5em;
+  background: #68EB64;
+  border-color: #68EB64;
+  color: #262626;
 }
 
 // Mobile layout
@@ -173,6 +191,14 @@ footer {
     padding: 0 0.5em;
     display: inline;
   }
+}
+
+.playlistItem .ant-list-item-meta-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 // Ant searchBox

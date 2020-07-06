@@ -14,9 +14,8 @@ const SearchSeeds = (props) => {
 
     const searchSpotify = async (searchTerm) => {
         if (searchTerm && searchTerm.length > 0) {
-            let response = await search(accessToken, searchTerm);
-            let artists = response.body.artists.items;
-            let tracks = response.body.tracks.items;
+            let {artists, tracks} = await search(accessToken, searchTerm);
+            console.log(artists);
 
             artists = artists.map(extractArtistInfo);
             tracks = tracks.map(extractTrackInfo);
@@ -97,7 +96,7 @@ const SearchSeeds = (props) => {
                         borderRadius: "10px"
                     }}
                     size="large"
-                    placeholder={props.addSeed ? "Add or remove seeds" : "Discover based on artist/song"}
+                    placeholder={props.addSeed ? "Add or remove seeds" : "Discover based on artists or songs"}
                 />
             </AutoComplete>
         </div>

@@ -21,15 +21,17 @@ export default function Playlist() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        let url = process.env.REACT_APP_API_URL + "/playlists";
+        if (accessToken) {
+            let url = process.env.REACT_APP_API_URL + "/playlists";
 
-        transport.get(url).then(response => {
-            setPlaylists(response.data.playlists);
-            setFilteredPlaylists(response.data.playlists);
-            setLoading(false);
-        }, (error) => {
-            setError(true);
-        });
+            transport.get(url).then(response => {
+                setPlaylists(response.data.playlists);
+                setFilteredPlaylists(response.data.playlists);
+                setLoading(false);
+            }, (error) => {
+                setError(true);
+            });
+        }
     }, []);
 
     if (!accessToken) {

@@ -13,6 +13,7 @@ import SearchSeeds from "./SearchSeeds";
 
 import {authenticate, getRecommendations, extractArtistInfo, extractTrackInfo} from "../modules/Spotify";
 import Cookies from "js-cookie";
+import Redirect from "react-router-dom/es/Redirect";
 
 const { Panel } = Collapse;
 const {Title } = Typography;
@@ -136,17 +137,20 @@ export default function Results(props) {
 
     // Calculate colors for seeds
     useEffect(() => {
-        console.log("Calculating colors");
         // Using IIFE for async effect
         seeds && seeds.artists && seeds.tracks && ( async () => {
             let items = [...seeds.artists, ...seeds.tracks];
-            let promiseArray = [...seeds.artists, ...seeds.tracks].map(item => Vibrant.from(item.image).getPalette().then(palette => palette.Vibrant._rgb.toString()));
+            let promiseArray = [...seeds.artists, ...seeds.tracks].map(item => Vibrant.from(item.image)
+                .getPalette()
+                .then(palette =>
+                    palette.Vibrant._rgb.toString()
+                ));
             let colors = await Promise.all(promiseArray);
 
             let colorStyles = {};
 
             for (let i = 0; i < items.length; i++) {
-                colorStyles[items[i].id] = `rgba(${colors[i]},0.4)`;
+                colorStyles[items[i].id] = `rgba(${colors[i]},0.6)`;
             }
 
             setSeedColors(colorStyles);
@@ -154,9 +158,9 @@ export default function Results(props) {
     }, [seeds]);
 
     // If invalid access
-    // if (!props.location.state || !props.location.state.playlist) {
-    //     return <Redirect to="/"/>
-    // }
+    if ( !(accessToken && props.location.state && (props.location.state.playlist || props.location.state.seed)) ) {
+        return <Redirect to="/"/>
+    }
 
     const savePlaylist = () => {
         const url = process.env.REACT_APP_API_URL + "/save";
