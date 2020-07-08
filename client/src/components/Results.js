@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios';
 import Vibrant from 'node-vibrant'
 import {Row, Col, Collapse, Typography, Affix, Tag, message, Space} from 'antd';
+import ReactGA from 'react-ga';
 
 import ParametersMenu from "./ParametersMenu";
 import SavePlaylist from "./SavePlaylist";
@@ -43,6 +44,9 @@ export default function Results(props) {
 
     // Fetch initial songs and load
     useEffect(() => {
+        ReactGA.pageview("/results");
+        ReactGA.set({userId: Cookies.get('userID')});
+
         // Immediately Invoked Function Expression
         (async () => {
             if (props.location.state) {
@@ -163,6 +167,11 @@ export default function Results(props) {
     }
 
     const savePlaylist = () => {
+        ReactGA.event({
+            category: "Save playlist",
+            action: "Click save button",
+        });
+
         const url = process.env.REACT_APP_API_URL + "/save";
         transport.post(url, {
             name,
@@ -177,8 +186,19 @@ export default function Results(props) {
     }
 
     const removeSeed = (item, type) => {
+        ReactGA.event({
+            category: "Seeds",
+            action: "Remove seed",
+            label: "Results"
+        });
+
         if (seeds.artists.length + seeds.tracks.length <= 1) {
             message.error("Cannot remove all seeds");
+            ReactGA.event({
+                category: "Seeds",
+                action: "Remove all seeds error",
+                label: "Results"
+            });
         } else {
             setSeeds({
                 artists: type === "artist" ? seeds.artists.filter(artist => artist.id !== item.id): seeds.artists,
@@ -190,6 +210,11 @@ export default function Results(props) {
     const addSeed = (item, type) => {
         if (seeds.artists.length + seeds.tracks.length >= 5) {
             message.error("Cannot add more than five seeds");
+            ReactGA.event({
+                category: "Seeds",
+                action: "Add extra seeds error",
+                label: "Results"
+            });
         } else {
             setSeeds({
                 artists: type === "artist" ? [...seeds.artists, item]: seeds.artists,
@@ -263,7 +288,6 @@ export default function Results(props) {
 
             {playlist ? <Title style={{textAlign: "center"}} level={2}>Generated from: {playlist.name}</Title> : null}
 
-            {/*<SearchOld addSeed={addSeed}/>*/}
             <SearchSeeds addSeed={addSeed}/>
             {seedTags}
             <Row>

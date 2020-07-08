@@ -1,17 +1,33 @@
 import React from 'react'
 import { Slider, Typography } from 'antd';
+import ReactGA from "react-ga";
 
 const { Text } = Typography;
 
 export default function ParametersMenu(props) {
-    console.log("Rendered Parameters");
-    console.log(props);
+    const onChangeHandler = (value, handler, attribute) => {
+        ReactGA.event({
+            category: "Parameters",
+            action: "Changed parameters",
+            label: attribute,
+            value: value[1] - value[0]
+        });
 
-    const onChangeHandler = (value, handler) => {
         handler({
             min: value[0],
             max: value[1]
         })
+    }
+
+    const setCount = (value) => {
+        ReactGA.event({
+            category: "Parameters",
+            action: "Changed parameters",
+            label: "count",
+            value: value
+        });
+
+        props.handlers.setCount(value);
     }
 
     return (
@@ -22,7 +38,7 @@ export default function ParametersMenu(props) {
                     min={10}
                     max={100}
                     defaultValue={props.values.count}
-                    onAfterChange={(value) => props.handlers.setCount(value)}
+                    onAfterChange={setCount}
                     step={5}
                 />
 
@@ -33,7 +49,7 @@ export default function ParametersMenu(props) {
                     max={100}
                     step={1}
                     defaultValue={[props.values.popularity.min, props.values.popularity.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setPopularity)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setPopularity, "popularity")}
                 />
 
                 <Text>Energy</Text>
@@ -43,7 +59,7 @@ export default function ParametersMenu(props) {
                     max={1}
                     step={0.01}
                     defaultValue={[props.values.energy.min, props.values.energy.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setEnergy)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setEnergy, "energy")}
                 />
 
                 <Text>Mood</Text>
@@ -53,7 +69,7 @@ export default function ParametersMenu(props) {
                     max={1}
                     step={0.01}
                     defaultValue={[props.values.valence.min, props.values.valence.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setValence)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setValence, "valence")}
                 />
 
                 <Text>Tempo</Text>
@@ -63,7 +79,7 @@ export default function ParametersMenu(props) {
                     max={200}
                     step={1}
                     defaultValue={[props.values.tempo.min, props.values.tempo.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setTempo)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setTempo, "tempo")}
                 />
 
                 <Text>Danceability</Text>
@@ -73,7 +89,7 @@ export default function ParametersMenu(props) {
                     max={1}
                     step={0.01}
                     defaultValue={[props.values.danceability.min, props.values.danceability.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setDanceability)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setDanceability, "danceability")}
                 />
 
                 <Text>Acousticness</Text>
@@ -83,7 +99,7 @@ export default function ParametersMenu(props) {
                     max={1}
                     step={0.01}
                     defaultValue={[props.values.acousticness.min, props.values.acousticness.max]}
-                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setAcousticness)}
+                    onAfterChange={(value) => onChangeHandler(value, props.handlers.setAcousticness, "acousticness")}
                 />
             </div>
         </div>

@@ -29,7 +29,7 @@ app.get('/login', async function(req, res) {
   });
 });
 
-app.get('/callback', function(req, res) {
+app.get('/callback', async function(req, res) {
   const code = req.query.code || null;
   const state = req.query.state || null;
   const storedState = req.cookies ? req.cookies.stateKey : null;
@@ -43,15 +43,18 @@ app.get('/callback', function(req, res) {
     // eslint-disable-next-line no-undef
     res.clearCookie('stateKey');
 
-    user.spotifyApi.authorizationCodeGrant(code).then(data => {
-      // 95 to prevent access token expiring early because of delays in this request
-      res.cookie('access_token', data.body.access_token, {
-        maxAge: data.body.expires_in * 0.95 * 1000,
-      });
-      res.cookie('refresh_token', data.body.refresh_token);
+    let data = await user.spotifyApi.authorizationCodeGrant(code);
 
-      res.redirect(clientURL);
+    // 95 to prevent access token expiring early because of delays in this request
+    res.cookie('access_token', data.body.access_token, {
+      maxAge: data.body.expires_in * 0.95 * 1000,
     });
+    res.cookie('refresh_token', data.body.refresh_token);
+
+    let userID = await user.getUserId(data.body.access_token);
+    res.cookie('userID', userID);
+
+    res.redirect(clientURL);
   }
 });
 

@@ -88,12 +88,15 @@ function createLoggedInUser(req, res) {
   });
 }
 
-function getUserId(loggedInSpotify) {
-  return new Promise((resolve, reject) => {
-    loggedInSpotify.getMe().then(userData => {
-      resolve(userData.body.id);
-    });
+async function getUserId(accessToken) {
+  let loggedInSpotify = new SpotifyWebApi({
+    redirectUri,
+    clientId,
+    clientSecret,
   });
+  loggedInSpotify.setAccessToken(accessToken);
+  let response = await loggedInSpotify.getMe();
+  return response.body.id;
 }
 
 async function createAPI() {

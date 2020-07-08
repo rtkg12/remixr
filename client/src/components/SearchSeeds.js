@@ -4,6 +4,7 @@ import {Redirect} from "react-router-dom";
 
 import {search, extractArtistInfo, extractTrackInfo} from '../modules/Spotify';
 import Cookies from "js-cookie";
+import ReactGA from "react-ga";
 
 const SearchSeeds = (props) => {
     const [accessToken] = useState(Cookies.get('access_token'));
@@ -61,6 +62,34 @@ const SearchSeeds = (props) => {
         }
     ];
 
+    const addSeed = (value, option) => {
+        if (props && props.addSeed) {
+            // Results page
+            ReactGA.event({
+                category: "Seeds",
+                action: "Add seed",
+                label: "Results"
+            });
+
+            props.addSeed(option.data, option.type)
+            setValue("")
+        } else {
+            // Home page
+            ReactGA.event({
+                category: "Seeds",
+                action: "Add seed",
+                label: "Home page"
+            });
+
+            if (option.type === "track") {
+                setSeed({artists: [], tracks: [option.data]});
+            } else {
+                setSeed({artists: [option.data], tracks: []});
+            }
+        }
+    }
+
+    // For home page. Go to results after seed is added
     if (seed) {
         return <Redirect to={{
             pathname: '/results',
@@ -83,13 +112,7 @@ const SearchSeeds = (props) => {
                     searchSpotify(value);
                     setValue(value);
                 }}
-                onSelect={(value, option) =>
-                        props && props.addSeed
-                            ? (props.addSeed(option.data, option.type), setValue(""))
-                            : option.type === "track"
-                                ? setSeed({artists: [], tracks: [option.data]})
-                                : setSeed({artists: [option.data], tracks: []})
-                }
+                onSelect={addSeed}
             >
                 <Input
                     style={{

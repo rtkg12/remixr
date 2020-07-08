@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import Vibrant from 'node-vibrant';
-import {Col, Card, Spin} from 'antd';
+import React from 'react';
+import {Col, Card} from 'antd';
 import {Link} from "react-router-dom";
+import ReactGA from "react-ga";
 
 const { Meta } = Card;
 
@@ -29,16 +29,24 @@ export default function PlaylistCard(props) {
 
     return (
         <Col className="gutter-row" xs={12} sm={8} md={6} lg={6} xl={6}>
-            <Link to={{
-                pathname: '/results',
-                state: {
-                    playlist: {
-                        id: props.playlist.id,
-                        name: props.playlist.name,
-                        image: imageURL
+            <Link
+                to={{
+                    pathname: '/results',
+                    state: {
+                        playlist: {
+                           id: props.playlist.id,
+                            name: props.playlist.name,
+                            image: imageURL
+                        }
                     }
-                }
-            }}>
+                }}
+                onClick={() => {
+                    ReactGA.event({
+                        category: "Playlist",
+                        action: "Click on playlist",
+                    });
+                }}
+            >
                 <Card
                     hoverable
                     className="playlistCard"

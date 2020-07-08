@@ -1,8 +1,14 @@
 import React from 'react';
 import {Result, Button} from 'antd';
 import {Link} from "react-router-dom";
+import ReactGA from "react-ga";
 
 export default function ErrorScreen() {
+    ReactGA.event({
+        category: "Error",
+        action: "Error screen displayed"
+    });
+
     return (
         <div>
             <Result

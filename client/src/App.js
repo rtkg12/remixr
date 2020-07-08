@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout} from 'antd';
 import { hot } from 'react-hot-loader';
+import ReactGA from 'react-ga';
 
 import Home from "./components/Home";
 import Playlist from "./components/Playlists";
@@ -15,6 +16,8 @@ import {
 } from "react-router-dom";
 
 const { Content } = Layout;
+
+ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
 
 function App() {
   return (

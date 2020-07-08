@@ -2,13 +2,20 @@ import React, {useState} from 'react';
 import {Affix, Button} from "antd";
 import Cookies from 'js-cookie';
 import {Redirect} from "react-router-dom";
+import ReactGA from "react-ga";
 
 const Navbar = () => {
     const [redirectPath, setRedirectPath] = useState(null);
 
     const logout = () => {
+        ReactGA.event({
+            category: "Auth",
+            action: "Log out button pressed",
+            label: "Navbar"
+        });
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
+        Cookies.remove('userID');
         setRedirectPath("/");
     }
 

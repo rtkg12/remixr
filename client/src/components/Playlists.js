@@ -3,6 +3,8 @@ import {Redirect} from "react-router-dom";
 import {Divider, Input, Row, Typography, Skeleton, AutoComplete} from 'antd';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import ReactGA from 'react-ga';
+
 import Navbar from "./Navbar";
 import ErrorScreen from "./ErrorScreen";
 import PlaylistCard from "./PlaylistCard";
@@ -22,6 +24,7 @@ export default function Playlist() {
 
     useEffect(() => {
         if (accessToken) {
+            ReactGA.pageview("/playlists");
             let url = process.env.REACT_APP_API_URL + "/playlists";
 
             transport.get(url).then(response => {
@@ -40,6 +43,10 @@ export default function Playlist() {
 
     const filter = (searchTerm) => {
         setFilteredPlaylists(playlists.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+        ReactGA.event({
+            category: "Playlist",
+            action: "Search playlists",
+        });
     }
 
     if (error) {

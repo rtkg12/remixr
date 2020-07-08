@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
-import {Button, Typography, Divider} from "antd";
+import React, {useEffect, useState} from 'react';
+import {Button, Typography } from "antd";
 import Cookies from 'js-cookie';
 import {Link} from "react-router-dom";
 import Footer from './Footer';
 import SearchSeeds from './SearchSeeds';
 import axios from "axios";
+import ReactGA from "react-ga";
 
 const { Text } = Typography;
 
@@ -16,6 +17,10 @@ function Home() {
     const [accessToken, setAccessToken] = useState(Cookies.get('access_token'));
     const [refreshToken, setRefreshToken] = useState(Cookies.get('refresh_token'));
 
+    useEffect(() => {
+        ReactGA.pageview("/");
+    }, [])
+
     const refresh = async () => {
         try {
             const url = process.env.REACT_APP_API_URL + "/refresh";
@@ -23,6 +28,11 @@ function Home() {
             let expiry_time = new Date(new Date().getTime() + response.data.maxAge);
             Cookies.set('access_token', response.data.access_token, {expires: expiry_time});
             setAccessToken(response.data.access_token);
+            ReactGA.event({
+                category: "Auth",
+                action: "Refreshed auth token",
+                label: "Home Page"
+            });
         } catch (e) {
             setAccessToken(null);
             setRefreshToken(null);
@@ -30,8 +40,14 @@ function Home() {
     }
 
     const logout = () => {
+        ReactGA.event({
+            category: "Auth",
+            action: "Log out button pressed",
+            label: "Home Page"
+        });
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
+        Cookies.remove('userID');
         setAccessToken(null);
         setRefreshToken(null);
     }
@@ -50,7 +66,20 @@ function Home() {
                     <SearchSeeds />
                 </div>
                 <Link to="/playlists">
-                    <Button type="primary" shape="round" size="large" className="highlight" style={{marginTop: "0.5em"}}>
+                    <Button
+                        type="primary"
+                        shape="round"
+                        size="large"
+                        className="highlight"
+                        style={{marginTop: "0.5em"}}
+                        onClick={() => {
+                            ReactGA.event({
+                                category: "Playlist",
+                                action: "Click on playlist button",
+                                label: "Home page"
+                            });
+                        }}
+                        >
                         Select from my playlists
                     </Button>
                 </Link>
@@ -60,8 +89,16 @@ function Home() {
         refresh();
     } else {
         actionButton = (
-            <a href={`${process.env.REACT_APP_API_URL}/login`}>
-                <Button className="spotify-login" shape="round" size="large">
+            <a
+                href={`${process.env.REACT_APP_API_URL}/login`}
+                onClick={() => {
+                    ReactGA.event({
+                        category: "Auth",
+                        action: "Log in button pressed",
+                        label: "Home Page"
+                    });
+                }}>
+                <Button className="spotify-login" shape="round" size="large" >
                     Login with Spotify
                 </Button>
             </a>

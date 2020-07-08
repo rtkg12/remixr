@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Avatar, Col, List} from "antd";
 import CaretRightOutlined from "@ant-design/icons/CaretRightOutlined";
 import PauseOutlined from "@ant-design/icons/PauseOutlined";
+import ReactGA from "react-ga";
 
 const SongList = (props) => {
     const [sound, setSound] = useState();
@@ -31,8 +32,20 @@ const SongList = (props) => {
                         borderBottom: 'none'
                     }}
                     key={item.id}
-                    onMouseEnter={() => { playPreview(item.preview_url, item.id) }}
-                    onMouseLeave={ stopPreview }
+                    onMouseEnter={() => {
+                        ReactGA.event({
+                            category: "Playback",
+                            action: "Hover play",
+                        });
+                        playPreview(item.preview_url, item.id);
+                    }}
+                    onMouseLeave={() => {
+                        ReactGA.event({
+                            category: "Playback",
+                            action: "Hover pause",
+                        });
+                        stopPreview();
+                    }}
                 >
                     {sound && currentlyPlaying === item.id &&
                     <audio autoPlay={true} loop={true}>
@@ -40,20 +53,36 @@ const SongList = (props) => {
                     </audio>
                     }
 
-                    <Col xs={22} sm={22} md={22} lg={14} xl={14} >
+                    <Col xs={22} sm={22} md={22} lg={14} xl={14}>
                         <List.Item.Meta
-                            avatar={<Avatar style={{borderRadius: '0.6em'}} shape='square' size={60} src={item.album.images[0].url} />}
+                            avatar={<Avatar style={{borderRadius: '0.6em'}} shape='square' size={60}
+                                            src={item.album.images[0].url}/>}
                             title={item.name}
                             description={item.artists[0].name}
                         />
                     </Col>
-                    <Col span={2} >
+                    <Col span={2}>
                         {item.preview_url ?
                             currentlyPlaying === item.id ?
-                                <PauseOutlined style={{fontSize: '2em'}} onClick={stopPreview}/> :
+                                <PauseOutlined
+                                    style={{fontSize: '2em'}}
+                                    onClick={() => {
+                                        ReactGA.event({
+                                            category: "Playback",
+                                            action: "Button pause",
+                                        });
+                                        stopPreview();
+                                    }}
+                                /> :
                                 <CaretRightOutlined
                                     style={{fontSize: '2em'}}
-                                    onClick={() => {playPreview(item.preview_url, item.id)}}
+                                    onClick={() => {
+                                        ReactGA.event({
+                                            category: "Playback",
+                                            action: "Button play",
+                                        });
+                                        playPreview(item.preview_url, item.id);
+                                    }}
                                 />
                             : null
                         }
