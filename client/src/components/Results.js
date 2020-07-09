@@ -12,7 +12,7 @@ import ErrorScreen from "./ErrorScreen";
 import SongList from "./SongList";
 import SearchSeeds from "./SearchSeeds";
 
-import {authenticate, getRecommendations, extractArtistInfo, extractTrackInfo} from "../modules/Spotify";
+import {authenticate, getRecommendations, extractArtistInfo, extractTrackInfo} from "../modules/Spotify.js";
 import Cookies from "js-cookie";
 import Redirect from "react-router-dom/es/Redirect";
 

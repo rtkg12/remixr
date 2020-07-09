@@ -34,9 +34,19 @@ function loadPlaylists(req) {
             allPlaylists = allPlaylists.concat(merged);
 
             const playlistExtractedData = allPlaylists.map(x => {
+              let image;
+
+              if (x.images.length > 1 && x.images[1]) {
+                image = x.images[1].url;
+              } else if (x.images.length === 1 && x.images[0]) {
+                image = x.images[0].url;
+              } else {
+                image = '';
+              }
+
               return {
                 name: x.name,
-                image: x.images[0] ? x.images[0].url : '',
+                image: image,
                 id: x.id,
               };
             });

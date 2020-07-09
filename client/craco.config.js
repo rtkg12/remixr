@@ -7,6 +7,22 @@ const path = require("path");
 // Don't open the browser during development
 process.env.BROWSER = "none";
 
+let plugins = [
+    {
+        plugin: CracoAntDesignPlugin,
+        options: {
+            customizeThemeLessPath: path.join(
+                __dirname,
+                "src/antd.customize.less"
+            )
+        }
+    }
+];
+
+if (process.env.NODE_ENV !== "production") {
+    plugins.push({ plugin: reactHotReloadPlugin })
+}
+
 module.exports = {
     webpack: {
         plugins: [
@@ -16,16 +32,5 @@ module.exports = {
                 : [])
         ]
     },
-    plugins: [
-        { plugin: reactHotReloadPlugin },
-        {
-            plugin: CracoAntDesignPlugin,
-            options: {
-                customizeThemeLessPath: path.join(
-                    __dirname,
-                    "src/antd.customize.less"
-                )
-            }
-        }
-    ]
+    plugins: plugins
 };

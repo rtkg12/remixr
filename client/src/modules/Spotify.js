@@ -11,12 +11,12 @@ const authenticate = (accessToken) => {
     return spotifyApi;
 }
 
-module.exports.getGenres = async (accessToken) => {
+const getGenres = async (accessToken) => {
     const spotifyApi = authenticate(accessToken);
     return await spotifyApi.getAvailableGenreSeeds();
 }
 
-module.exports.search = async (accessToken, searchTerm) => {
+const search = async (accessToken, searchTerm) => {
     let types = ['track', 'artist'];
     let limit = 5;
     let response;
@@ -37,7 +37,7 @@ module.exports.search = async (accessToken, searchTerm) => {
     }
 }
 
-module.exports.getRecommendations = async (accessToken, parameters, seeds, limit) => {
+const getRecommendations = async (accessToken, parameters, seeds, limit) => {
     const spotify = authenticate(accessToken);
 
     let params = {};
@@ -69,7 +69,7 @@ module.exports.getRecommendations = async (accessToken, parameters, seeds, limit
  * @param artist
  * @returns {{image: (*), name: *, id: *}}
  */
-module.exports.extractArtistInfo = (artist) => ({
+const extractArtistInfo = (artist) => ({
     name: artist.name,
     id: artist.id,
     image: artist.images && artist.images.length > 0
@@ -82,7 +82,7 @@ module.exports.extractArtistInfo = (artist) => ({
  * @param track
  * @returns {{image: (*), name: *, id: *}}
  */
-module.exports.extractTrackInfo = (track) => ({
+const extractTrackInfo = (track) => ({
     name: track.name,
     id: track.id,
     image: track.album && track.album.images && track.album.images.length > 0
@@ -90,4 +90,11 @@ module.exports.extractTrackInfo = (track) => ({
         : DEFAULT_TRACK_IMAGE
 });
 
-module.exports.authenticate = authenticate;
+export {
+    authenticate,
+    getGenres,
+    search,
+    getRecommendations,
+    extractArtistInfo,
+    extractTrackInfo
+}

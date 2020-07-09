@@ -1,6 +1,6 @@
+import { hot } from 'react-hot-loader';
 import React from 'react';
 import { Layout} from 'antd';
-import { hot } from 'react-hot-loader';
 import ReactGA from 'react-ga';
 
 import Home from "./components/Home";
@@ -24,7 +24,6 @@ function App() {
       <div className="body">
           <HashRouter>
               <Route exact path="/" component={Home}/>
-
               <Layout>
                   <Content
                       style={{ width: '90%', margin: 'auto', height: "100%", marginBottom: "2em" }}
