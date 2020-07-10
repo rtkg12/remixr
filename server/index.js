@@ -4,6 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const compression = require('compression');
+const helmet = require('helmet')
+
 const user = require('./modules/user');
 const playlist = require('./modules/playlist');
 const stats = require('./modules/processStats');
@@ -14,6 +17,8 @@ app.use(express.static('public'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
+app.use(compression());
+app.use(helmet())
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,

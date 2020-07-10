@@ -12,7 +12,7 @@ import "./App.less";
 
 import {
     Route,
-    HashRouter
+    BrowserRouter as Router
 } from "react-router-dom";
 
 const { Content } = Layout;
@@ -22,7 +22,7 @@ ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
 function App() {
   return (
       <div className="body">
-          <HashRouter>
+          <Router>
               <Route exact path="/" component={Home}/>
               <Layout>
                   <Content
@@ -34,7 +34,7 @@ function App() {
 
                   <Footer/>
               </Layout>
-          </HashRouter>
+          </Router>
       </div>
 
   );
