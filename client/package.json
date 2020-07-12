@@ -19,6 +19,7 @@
     "react-autosuggest": "^10.0.2",
     "react-dom": "^16.13.1",
     "react-ga": "^3.0.0",
+    "react-icons": "^3.10.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "serve": "^11.3.2",

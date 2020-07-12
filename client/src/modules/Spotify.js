@@ -11,14 +11,9 @@ const authenticate = (accessToken) => {
   return spotifyApi;
 };
 
-const getGenres = async (accessToken) => {
-  const spotifyApi = authenticate(accessToken);
-  return await spotifyApi.getAvailableGenreSeeds();
-};
-
 const search = async (accessToken, searchTerm) => {
-  let types = ['track', 'artist'];
-  let limit = 5;
+  let types = ['track', 'artist', 'playlist'];
+  let limit = 3;
   let response;
 
   if (accessToken) {
@@ -35,26 +30,39 @@ const search = async (accessToken, searchTerm) => {
   return {
     artists: response.body.artists.items,
     tracks: response.body.tracks.items,
+    playlists: response.body.playlists.items,
   };
 };
 
 const getRecommendations = async (accessToken, parameters, seeds, limit) => {
-  const spotify = authenticate(accessToken);
+  let response;
 
-  let params = {};
-  params.seed_artists = seeds.artists.map((artist) => artist.id);
-  params.seed_tracks = seeds.tracks.map((track) => track.id);
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
 
-  const relevant_features = ['danceability', 'energy', 'acousticness', 'valence', 'tempo', 'popularity'];
+    let params = {};
+    params.seed_artists = seeds.artists.map((artist) => artist.id);
+    params.seed_tracks = seeds.tracks.map((track) => track.id);
 
-  for (let feature of relevant_features) {
-    params[`min_${feature}`] = parameters[feature].min;
-    params[`max_${feature}`] = parameters[feature].max;
+    const relevant_features = ['danceability', 'energy', 'acousticness', 'valence', 'tempo', 'popularity'];
+
+    for (let feature of relevant_features) {
+      params[`min_${feature}`] = parameters[feature].min;
+      params[`max_${feature}`] = parameters[feature].max;
+    }
+
+    params.limit = limit;
+
+    response = await spotify.getRecommendations(params);
+  } else {
+    response = await axios.post(`${URI}/recommendations`, {
+      parameters,
+      seeds,
+      limit,
+    });
+    response = response.data;
   }
 
-  params.limit = limit;
-
-  let response = await spotify.getRecommendations(params);
   return response.body.tracks;
 };
 
@@ -83,4 +91,36 @@ const extractTrackInfo = (track) => ({
       : DEFAULT_TRACK_IMAGE,
 });
 
-export { authenticate, getGenres, search, getRecommendations, extractArtistInfo, extractTrackInfo };
+const getArtists = async (accessToken, artistIds) => {
+  let response;
+
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.getArtists(artistIds);
+  } else {
+    response = await axios.get(`${URI}/artists`, {
+      params: { artistIds },
+    });
+    response = response.data;
+  }
+
+  return response.body.artists.map(extractArtistInfo);
+};
+
+const getTracks = async (accessToken, trackIds) => {
+  let response;
+
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.getTracks(trackIds);
+  } else {
+    response = await axios.get(`${URI}/tracks`, {
+      params: { trackIds },
+    });
+    response = response.data;
+  }
+
+  return response.body.tracks.map(extractTrackInfo);
+};
+
+export { authenticate, search, getRecommendations, extractArtistInfo, extractTrackInfo, getArtists, getTracks };

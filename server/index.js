@@ -29,6 +29,12 @@ app.use(cors(corsOptions));
 app.get('/login', async function(req, res) {
   user.login().then(ret => {
     res.cookie('stateKey', ret.state);
+
+    // Where to redirect after login. Default expiry time of 3 minutes
+    req.query.redirectTo && res.cookie('redirectTo', req.query.redirectTo, {
+      maxAge: 3 * 60 * 1000,
+    });
+
     let authorizeURL = `${ret.authorizeURL}&show_dialog=true`;
     res.redirect(authorizeURL);
   });
@@ -39,14 +45,15 @@ app.get('/callback', async function(req, res) {
   const state = req.query.state || null;
   const storedState = req.cookies ? req.cookies.stateKey : null;
   const clientURL = process.env.CLIENT_URL;
+  const redirectTo = req.cookies.redirectTo || "";
 
-  if (state === null || state !== storedState || code == null) {
-    // eslint-disable-next-line no-console
-    console.log('Auth error');
-    res.redirect(clientURL);
-  } else {
-    // eslint-disable-next-line no-undef
+  try {
+    if (state === null || state !== storedState || code == null) {
+      // eslint-disable-next-line no-console
+      throw "Authentication error: State invalid";
+    }
     res.clearCookie('stateKey');
+    res.clearCookie('redirectTo');
 
     let data = await user.spotifyApi.authorizationCodeGrant(code);
 
@@ -58,9 +65,12 @@ app.get('/callback', async function(req, res) {
 
     let userID = await user.getUserId(data.body.access_token);
     res.cookie('userID', userID);
-
-    res.redirect(clientURL);
+  } catch (e) {
+    console.log(e);
+  } finally {
+    res.redirect(`${clientURL}/${redirectTo}`);
   }
+
 });
 
 app.get('/refresh', async (req, res) => {
@@ -86,23 +96,30 @@ app.get('/playlists', async (req, res) => {
   }
 });
 
+// TODO Make it compatible with non-logged in users
 app.get('/results/:id', async (req, res) => {
-  const playlistId = req.params.id;
-  console.log(`Playlist ID: ${playlistId}`);
-  const loggedInSpotify = await user.createLoggedInUser(req, res);
-  const {parameters, tracks, artists} = await stats.calculateStats(loggedInSpotify, playlistId);
+  try {
+    const playlistId = req.params.id;
+    console.log(`Playlist ID: ${playlistId}`);
+    const loggedInSpotify = await user.createLoggedInUser(req, res);
 
-  console.log(parameters);
-  const songs = await playlist.getRecommendations(loggedInSpotify, parameters);
-  res.json({ songs, parameters });
+    const {parameters, tracks, artists} = await stats.calculateStats(loggedInSpotify, playlistId);
+
+    console.log(parameters);
+    const songs = await playlist.getRecommendations(loggedInSpotify, parameters);
+    res.json({ songs, parameters });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Server error");
+  }
 });
 
 app.post('/recommendations', async (req, res) => {
   try {
     // Parse parameters from request
     let parameters = {}
-    parameters.seed_artists = req.body.seeds.artists;
-    parameters.seed_tracks = req.body.seeds.tracks;
+    parameters.seed_artists = req.body.seeds.artists.map((artist) => artist.id);
+    parameters.seed_tracks = req.body.seeds.tracks.map((track) => track.id);
 
     const relevant_features = [
       'danceability',
@@ -118,12 +135,11 @@ app.post('/recommendations', async (req, res) => {
       parameters[`max_${feature}`] = req.body.parameters[feature].max;
     }
 
-    parameters.limit = 100;
+    parameters.limit = req.body.limit;
 
-    const loggedInSpotify = await user.createLoggedInUser(req, res);
-    const songs = await playlist.getRecommendations(loggedInSpotify, parameters);
-
-    res.json({songs});
+    const spotify = await user.createAPI();
+    const results = await spotify.getRecommendations(parameters);
+    res.json({body: results.body});
   } catch (e) {
     console.log(e);
     res.status(500).send("Server error");
@@ -147,6 +163,28 @@ app.get('/search', async (req, res) => {
     const spotify = await user.createAPI();
     const { searchTerm, types, limit } = req.query;
     const results =  await spotify.search(searchTerm, types, {limit});
+    res.json({body: results.body});
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.get('/artists', async (req, res) => {
+  try {
+    const spotify = await user.createAPI();
+    const { artistIds } = req.query;
+    const results =  await spotify.getArtists(artistIds);
+    res.json({body: results.body});
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.get('/tracks', async (req, res) => {
+  try {
+    const spotify = await user.createAPI();
+    const { trackIds } = req.query;
+    const results =  await spotify.getTracks(trackIds);
     res.json({body: results.body});
   } catch (e) {
     console.log(e);

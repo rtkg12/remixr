@@ -6,26 +6,23 @@ import { search, extractArtistInfo, extractTrackInfo } from '../modules/Spotify'
 import Cookies from 'js-cookie';
 import ReactGA from 'react-ga';
 
-const SearchSeeds = (props) => {
+const SearchPlaylists = (props) => {
   const [accessToken] = useState(Cookies.get('access_token'));
   const [value, setValue] = useState('');
   const [tracks, setTracks] = useState([]);
   const [artists, setArtists] = useState([]);
-  const [playlists, setPlaylists] = useState([]);
   const [seed, setSeed] = useState(null);
-  const [playlistSeed, setPlaylistSeed] = useState(null);
 
   const searchSpotify = async (searchTerm) => {
     if (searchTerm && searchTerm.length > 0) {
-      let { artists, tracks, playlists } = await search(accessToken, searchTerm);
+      let { artists, tracks } = await search(accessToken, searchTerm);
+      console.log(artists);
 
       artists = artists.map(extractArtistInfo);
       tracks = tracks.map(extractTrackInfo);
-      playlists = playlists.map(extractArtistInfo);
 
       setArtists(artists);
       setTracks(tracks);
-      setPlaylists(playlists);
     }
   };
 
@@ -51,16 +48,6 @@ const SearchSeeds = (props) => {
   });
 
   const options = [
-    ...(!props || !props.addSeed
-      ? [
-          // Only display playlists on home page
-          {
-            label: renderTitle('Playlists'),
-            options:
-              playlists && playlists.length > 0 ? playlists.map((playlists) => renderItem(playlists, 'playlist')) : [],
-          },
-        ]
-      : []),
     {
       label: renderTitle('Tracks'),
       options: tracks && tracks.length > 0 ? tracks.map((track) => renderItem(track, 'track')) : [],
@@ -83,44 +70,20 @@ const SearchSeeds = (props) => {
       props.addSeed(option.data, option.type);
       setValue('');
     } else {
-      // Home page - Seed search
+      // Home page
       ReactGA.event({
         category: 'Seeds',
         action: 'Add seed',
         label: 'Home page',
       });
 
-      if (option.type === 'playlist') {
-        ReactGA.event({
-          category: 'Seeds',
-          action: 'Add playlist',
-          label: 'Home page',
-        });
-        setPlaylistSeed(option.data);
-      } else if (option.type === 'track') {
+      if (option.type === 'track') {
         setSeed({ artists: [], tracks: [option.data] });
       } else {
         setSeed({ artists: [option.data], tracks: [] });
       }
     }
   };
-
-  if (playlistSeed) {
-    return (
-      <Redirect
-        to={{
-          pathname: '/results',
-          state: {
-            playlist: {
-              id: playlistSeed.id,
-              name: playlistSeed.name,
-              image: playlistSeed.image,
-            },
-          },
-        }}
-      />
-    );
-  }
 
   // For home page. Go to results after seed is added
   if (seed) {
@@ -156,11 +119,11 @@ const SearchSeeds = (props) => {
             borderRadius: '10px',
           }}
           size="large"
-          placeholder={props.addSeed ? 'Add or remove seeds' : 'Discover based on playlists, songs or artists'}
+          placeholder={props.addSeed ? 'Add or remove seeds' : 'Discover based on artists or songs'}
         />
       </AutoComplete>
     </div>
   );
 };
 
-export default SearchSeeds;
+export default SearchPlaylists;

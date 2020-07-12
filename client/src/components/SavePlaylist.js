@@ -4,7 +4,7 @@ import ReactGA from 'react-ga';
 
 const { Title } = Typography;
 
-export default function SavePlaylist(props) {
+function SavePlaylist(props) {
   return (
     <div className="rounded-component" style={{ padding: '1em', textAlign: 'center' }}>
       <Title level={3} align="center">
@@ -25,9 +25,23 @@ export default function SavePlaylist(props) {
         }}
       />
 
-      <Button type="primary" shape="round" size="large" onClick={props.saveHandler} style={{ marginTop: '1em' }}>
-        Save
-      </Button>
+      {props.isLoggedIn && props.isLoggedIn === true ? (
+        <Button type="primary" shape="round" size="large" onClick={props.saveHandler} style={{ marginTop: '1em' }}>
+          Save
+        </Button>
+      ) : (
+        <Button
+          type="primary"
+          shape="round"
+          size="large"
+          onClick={props.saveStateAndLogin}
+          style={{ marginTop: '1em' }}
+        >
+          Log in to save playlist
+        </Button>
+      )}
     </div>
   );
 }
+
+export default React.memo(SavePlaylist);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Vibrant from 'node-vibrant';
 import { Row, Col, Collapse, Typography, Affix, Tag, message, Space } from 'antd';
@@ -12,10 +12,10 @@ import ErrorScreen from './ErrorScreen';
 import SongList from './SongList';
 import SearchSeeds from './SearchSeeds';
 
-import { authenticate, getRecommendations, extractArtistInfo, extractTrackInfo } from '../modules/Spotify.js';
+import { authenticate, getRecommendations, getArtists, getTracks } from '../modules/Spotify.js';
 
 import Cookies from 'js-cookie';
-import Redirect from 'react-router-dom/es/Redirect';
+import { Redirect } from 'react-router-dom';
 
 const { Panel } = Collapse;
 const { Title } = Typography;
@@ -32,6 +32,7 @@ export default function Results(props) {
   const [name, setName] = useState('remixr');
   const [generatedPlaylistLink, setGeneratedPlaylistLink] = useState();
   const [error, setError] = useState(false);
+  const initialFetchComplete = useRef(false);
   // Parameters
   const [count, setCount] = useState(25);
   const [popularity, setPopularity] = useState({ min: 0, max: 100 });
@@ -48,90 +49,88 @@ export default function Results(props) {
     ReactGA.pageview('/results');
     ReactGA.set({ userId: Cookies.get('userID') });
 
-    // Immediately Invoked Function Expression
-    (async () => {
-      if (props.location.state) {
-        if (props.location.state.playlist) {
+    if (checkStateStored()) {
+      restoreState();
+    } else if (props?.location?.state?.seed) {
+      initialFetchComplete.current = true;
+      setSeeds(props.location.state.seed);
+      setLoading(false);
+    } else {
+      // Immediately Invoked Function Expression
+      (async () => {
+        if (props?.location?.state?.playlist) {
           setPlaylist(props.location.state.playlist);
-        } else if (props.location.state.seed) {
-          setSeeds(props.location.state.seed);
-          console.log('Added seed');
-          setLoading(false);
         }
-      }
 
-      if (
-        (props.location.state && props.location.state.playlist && props.location.state.playlist.id) ||
-        (playlist && playlist.id)
-      ) {
-        let id = playlist ? playlist.id : props.location.state.playlist.id;
-        const url = process.env.REACT_APP_API_URL + '/results/' + id;
+        if (props?.location?.state?.playlist?.id || playlist?.id) {
+          let id = playlist?.id || props?.location?.state?.playlist?.id;
+          const url = process.env.REACT_APP_API_URL + '/results/' + id;
 
-        try {
-          let response = await transport.get(url);
+          try {
+            let response = await transport.get(url);
 
-          setSongs(response.data.songs);
-          const parameters = response.data.parameters;
+            setSongs(response.data.songs);
 
-          setDanceability({
-            min: parameters.min_danceability,
-            max: parameters.max_danceability,
-          });
+            const parameters = response.data.parameters;
 
-          setAcousticness({
-            min: parameters.min_acousticness,
-            max: parameters.max_acousticness,
-          });
+            setDanceability({
+              min: parameters.min_danceability,
+              max: parameters.max_danceability,
+            });
 
-          setPopularity({
-            min: parameters.min_popularity,
-            max: parameters.max_popularity,
-          });
+            setAcousticness({
+              min: parameters.min_acousticness,
+              max: parameters.max_acousticness,
+            });
 
-          setEnergy({
-            min: parameters.min_energy,
-            max: parameters.max_energy,
-          });
+            setPopularity({
+              min: parameters.min_popularity,
+              max: parameters.max_popularity,
+            });
 
-          setValence({
-            min: parameters.min_valence,
-            max: parameters.max_valence,
-          });
+            setEnergy({
+              min: parameters.min_energy,
+              max: parameters.max_energy,
+            });
 
-          setTempo({
-            min: parameters.min_tempo,
-            max: parameters.max_tempo,
-          });
+            setValence({
+              min: parameters.min_valence,
+              max: parameters.max_valence,
+            });
 
-          const spotify = authenticate(accessToken);
+            setTempo({
+              min: parameters.min_tempo,
+              max: parameters.max_tempo,
+            });
 
-          let data = await Promise.all([
-            spotify.getArtists(parameters.seed_artists),
-            spotify.getTracks(parameters.seed_tracks),
-          ]);
+            let [artists, tracks] = await Promise.all([
+              getArtists(accessToken, parameters.seed_artists),
+              getTracks(accessToken, parameters.seed_tracks),
+            ]);
 
-          let artists = data[0].body.artists.map(extractArtistInfo);
-          let tracks = data[1].body.tracks.map(extractTrackInfo);
+            setSeeds({
+              artists: artists,
+              tracks: tracks,
+            });
 
-          setSeeds({
-            artists: artists,
-            tracks: tracks,
-          });
-
-          let playlistName = playlist ? playlist.name : props.location.state.playlist.name;
-          setName(`remixr:${playlistName}`);
-          setLoading(false);
-        } catch (e) {
-          console.log(e);
-          setError(true);
+            let playlistName = playlist?.name || props?.location?.state?.playlist?.name;
+            setName(`remixr:${playlistName}`);
+            initialFetchComplete.current = true;
+            setLoading(false);
+          } catch (e) {
+            console.log(e);
+            setError(true);
+          }
         }
-      }
-    })();
+      })();
+    }
   }, []);
 
   // Update generated songs if parameters are changed
   useEffect(() => {
-    if (!loading) {
+    if (!loading && initialFetchComplete.current) {
+      // To prevent effect from refreshing songlist while restoring from localStorage
+      console.log('Running seeds effect');
       setLoading(true);
       setGeneratedPlaylistLink(null);
 
@@ -149,7 +148,14 @@ export default function Results(props) {
           setSongs(songs);
           setLoading(false);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          setError(true);
+        });
+    } else if (checkStateStored() && checkStateUpdatedFromStorage()) {
+      // Runs once state is fully restored from local storage
+      initialFetchComplete.current = true;
+      localStorage.clear();
     }
   }, [count, popularity, danceability, energy, tempo, acousticness, valence, seeds]);
 
@@ -178,10 +184,97 @@ export default function Results(props) {
       })();
   }, [seeds]);
 
-  // If invalid access
-  if (!(accessToken && props.location.state && (props.location.state.playlist || props.location.state.seed))) {
-    return <Redirect to="/" />;
-  }
+  // // If invalid access
+  // if (!(accessToken && props.location.state && (props.location.state.playlist || props.location.state.seed))) {
+  //   return <Redirect to="/" />;
+  // }
+
+  /**
+   * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
+   */
+  const saveStateAndLogin = () => {
+    localStorage.setItem('songs', JSON.stringify(songs));
+    localStorage.setItem('playlist', JSON.stringify(playlist));
+    localStorage.setItem('name', JSON.stringify(name));
+    localStorage.setItem('count', JSON.stringify(count));
+    localStorage.setItem('popularity', JSON.stringify(popularity));
+    localStorage.setItem('danceability', JSON.stringify(danceability));
+    localStorage.setItem('energy', JSON.stringify(energy));
+    localStorage.setItem('acousticness', JSON.stringify(acousticness));
+    localStorage.setItem('valence', JSON.stringify(valence));
+    localStorage.setItem('tempo', JSON.stringify(tempo));
+    localStorage.setItem('seeds', JSON.stringify(seeds));
+    localStorage.setItem('seedColors', JSON.stringify(seedColors));
+
+    const URI = process.env.REACT_APP_API_URL;
+    window.location = `${URI}/login?redirectTo=results`;
+  };
+
+  /**
+   * Check if results state stored in localstorage
+   */
+  const checkStateStored = () => {
+    return (
+      localStorage.getItem('songs') &&
+      localStorage.getItem('playlist') &&
+      localStorage.getItem('name') &&
+      localStorage.getItem('count') &&
+      localStorage.getItem('popularity') &&
+      localStorage.getItem('danceability') &&
+      localStorage.getItem('energy') &&
+      localStorage.getItem('acousticness') &&
+      localStorage.getItem('valence') &&
+      localStorage.getItem('tempo') &&
+      localStorage.getItem('seeds') &&
+      localStorage.getItem('seedColors')
+    );
+  };
+
+  /**
+   * Check if state is done updating from local storage
+   * @returns {boolean|boolean}
+   */
+  const checkStateUpdatedFromStorage = () => {
+    return (
+      JSON.stringify(songs) === localStorage.getItem('songs') &&
+      JSON.stringify(playlist) === localStorage.getItem('playlist') &&
+      JSON.stringify(name) === localStorage.getItem('name') &&
+      JSON.stringify(count) === localStorage.getItem('count') &&
+      JSON.stringify(popularity) === localStorage.getItem('popularity') &&
+      JSON.stringify(danceability) === localStorage.getItem('danceability') &&
+      JSON.stringify(energy) === localStorage.getItem('energy') &&
+      JSON.stringify(acousticness) === localStorage.getItem('acousticness') &&
+      JSON.stringify(valence) === localStorage.getItem('valence') &&
+      JSON.stringify(tempo) === localStorage.getItem('tempo') &&
+      JSON.stringify(seeds) === localStorage.getItem('seeds') &&
+      JSON.stringify(seedColors) === localStorage.getItem('seedColors')
+    );
+  };
+
+  /**
+   * Restore results page state from localstorage
+   */
+  const restoreState = () => {
+    console.log('Restoring state');
+    console.log(initialFetchComplete.current);
+    setLoading(true);
+    initialFetchComplete.current = false;
+
+    setSongs(JSON.parse(localStorage.getItem('songs')));
+    setPlaylist(JSON.parse(localStorage.getItem('playlist')));
+    setName(JSON.parse(localStorage.getItem('name')));
+    setCount(JSON.parse(localStorage.getItem('count')));
+    setPopularity(JSON.parse(localStorage.getItem('popularity')));
+    setDanceability(JSON.parse(localStorage.getItem('danceability')));
+    setEnergy(JSON.parse(localStorage.getItem('energy')));
+    setAcousticness(JSON.parse(localStorage.getItem('acousticness')));
+    setValence(JSON.parse(localStorage.getItem('valence')));
+    setTempo(JSON.parse(localStorage.getItem('tempo')));
+    setSeeds(JSON.parse(localStorage.getItem('seeds')));
+    setSeedColors(JSON.parse(localStorage.getItem('seedColors')));
+
+    setLoading(false);
+  };
 
   const savePlaylist = () => {
     ReactGA.event({
@@ -317,6 +410,21 @@ export default function Results(props) {
     />
   );
 
+  const access_token = Cookies.get('access_token');
+  const isLoggedIn = access_token !== undefined && access_token !== null && access_token !== '';
+
+  const savePlaylistMenu = (
+    <SavePlaylist
+      name={name}
+      setName={setName}
+      saveHandler={savePlaylist}
+      isLoggedIn={isLoggedIn}
+      saveStateAndLogin={saveStateAndLogin}
+    />
+  );
+
+  const playlistSuccessPage = <PlaylistSuccessPage link={generatedPlaylistLink} />;
+
   if (error) {
     return <ErrorScreen />;
   }
@@ -336,11 +444,7 @@ export default function Results(props) {
       <Row>
         {/* Mobile settings drawer */}
         <Col xs={24} sm={24} md={24} lg={0} xl={0}>
-          {!loading && generatedPlaylistLink ? (
-            <PlaylistSuccessPage link={generatedPlaylistLink} />
-          ) : (
-            <SavePlaylist name={name} setName={setName} saveHandler={savePlaylist} />
-          )}
+          {!loading && generatedPlaylistLink ? playlistSuccessPage : savePlaylistMenu}
           <Collapse
             bordered={false}
             className="collapse-parameters rounded-component"
@@ -365,11 +469,7 @@ export default function Results(props) {
         {/* Web settings drawer */}
         <Col xs={0} sm={0} md={0} lg={8} xl={8}>
           <Affix offsetTop={70}>
-            {generatedPlaylistLink ? (
-              <PlaylistSuccessPage link={generatedPlaylistLink} />
-            ) : (
-              <SavePlaylist name={name} setName={setName} saveHandler={savePlaylist} />
-            )}
+            {generatedPlaylistLink ? playlistSuccessPage : savePlaylistMenu}
             {!loading && (
               <div className="parameters rounded-component">
                 <Title style={{ textAlign: 'center' }} level={3}>
