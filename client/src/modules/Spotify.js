@@ -1,8 +1,8 @@
 const SpotifyWebApi = require('spotify-web-api-node');
 const axios = require('axios');
 
-const DEFAULT_ARTIST_IMAGE = 'https://static.thenounproject.com/png/82078-200.png';
-const DEFAULT_TRACK_IMAGE = 'https://static.thenounproject.com/png/82078-200.png';
+const DEFAULT_ARTIST_IMAGE = '/images/artist.png';
+const DEFAULT_TRACK_IMAGE = '/images/track.png';
 const URI = process.env.REACT_APP_API_URL;
 
 const authenticate = (accessToken) => {

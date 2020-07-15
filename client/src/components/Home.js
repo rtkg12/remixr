@@ -54,11 +54,7 @@ function Home() {
           marginTop: '1em',
         }}
       >
-        {accessToken ? (
-          <NavButton type={'logout'} setAccessToken={setAccessToken} setRefreshToken={setRefreshToken} />
-        ) : (
-          <NavButton type={'login'} setAccessToken={setAccessToken} setRefreshToken={setRefreshToken} />
-        )}
+        <NavButton setAccessToken={setAccessToken} setRefreshToken={setRefreshToken} />
       </div>
 
       <div className="home center">
@@ -74,37 +70,42 @@ function Home() {
           >
             <SearchSeeds />
           </div>
-          <Link to="/playlists">
-            <Button
-              shape="round"
-              size="large"
-              className="spotifyColor"
-              style={{ marginTop: '0.5em' }}
-              onClick={() => {
-                ReactGA.event({
-                  category: 'Playlist',
-                  action: 'Click on playlist button',
-                  label: 'Home page',
-                });
+          <Button
+            shape="round"
+            size="large"
+            className="spotifyColor"
+            style={{ marginTop: '0.5em' }}
+            onClick={() => {
+              ReactGA.event({
+                category: 'Playlist',
+                action: 'Click on playlist button',
+                label: 'Home page',
+              });
+
+              if (!accessToken) {
+                const URI = process.env.REACT_APP_API_URL;
+                window.location = `${URI}/login?redirectTo=playlists`;
+              } else {
+                window.location = '/playlists';
+              }
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
             >
-              <span
+              <FaSpotify
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
+                  height: '1.5em',
+                  width: '1.5em',
+                  marginRight: '5px',
                 }}
-              >
-                <FaSpotify
-                  style={{
-                    height: '1.5em',
-                    width: '1.5em',
-                    marginRight: '5px',
-                  }}
-                />
-                Select from my playlists
-              </span>
-            </Button>
-          </Link>
+              />
+              Select from my playlists
+            </span>
+          </Button>
         </div>
       </div>
 

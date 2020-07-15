@@ -96,14 +96,16 @@ app.get('/playlists', async (req, res) => {
   }
 });
 
-// TODO Make it compatible with non-logged in users
 app.get('/results/:id', async (req, res) => {
   try {
     const playlistId = req.params.id;
     console.log(`Playlist ID: ${playlistId}`);
-    const loggedInSpotify = await user.createLoggedInUser(req, res);
 
-    const {parameters, tracks, artists} = await stats.calculateStats(loggedInSpotify, playlistId);
+    const isLoggedIn = req.cookies.access_token !== undefined && req.cookies.access_token !== null && req.cookies.access_token !== "";
+
+    let loggedInSpotify = isLoggedIn ? await user.createLoggedInUser(req, res) : await user.createAPI();
+
+    const {parameters, tracks, artists} = await stats.calculateStats(loggedInSpotify, playlistId, isLoggedIn);
 
     console.log(parameters);
     const songs = await playlist.getRecommendations(loggedInSpotify, parameters);

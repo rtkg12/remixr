@@ -7,6 +7,8 @@ import Cookies from 'js-cookie';
 
 const NavButton = (props) => {
   const [redirectPath, setRedirectPath] = useState(null);
+  const accessToken = Cookies.get('access_token');
+  const isLoggedIn = accessToken && accessToken !== '';
 
   const logout = () => {
     ReactGA.event({
@@ -22,7 +24,7 @@ const NavButton = (props) => {
     props.setAccessToken && props.setAccessToken(null);
     props.setRefreshToken && props.setRefreshToken(null);
 
-    setRedirectPath('/');
+    window.location = '/';
   };
 
   const login = () => {
@@ -50,7 +52,7 @@ const NavButton = (props) => {
           float: 'right',
           marginTop: '0.5em',
         }}
-        onClick={props.type === 'logout' ? logout : props.type === 'login' ? login : null}
+        onClick={isLoggedIn ? logout : login}
       >
         <span
           style={{
@@ -65,7 +67,7 @@ const NavButton = (props) => {
               marginRight: '5px',
             }}
           />
-          {props.type === 'logout' ? 'Log out' : 'Log in'}
+          {isLoggedIn ? 'Log out' : 'Log in'}
         </span>
       </Button>
     </div>

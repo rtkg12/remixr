@@ -28,7 +28,7 @@ const Navbar = () => {
           >
             remixr
           </a>
-          <NavButton type="logout" />
+          <NavButton />
         </div>
       )}
     </Affix>

@@ -24,6 +24,26 @@ const transport = axios.create({
   withCredentials: true,
 });
 
+/**
+ * Check if results state stored in localstorage
+ */
+const checkStateStored = () => {
+  return (
+    localStorage.getItem('songs') &&
+    localStorage.getItem('playlist') &&
+    localStorage.getItem('name') &&
+    localStorage.getItem('count') &&
+    localStorage.getItem('popularity') &&
+    localStorage.getItem('danceability') &&
+    localStorage.getItem('energy') &&
+    localStorage.getItem('acousticness') &&
+    localStorage.getItem('valence') &&
+    localStorage.getItem('tempo') &&
+    localStorage.getItem('seeds') &&
+    localStorage.getItem('seedColors')
+  );
+};
+
 export default function Results(props) {
   const [accessToken] = useState(Cookies.get('access_token'));
   const [songs, setSongs] = useState([]);
@@ -43,6 +63,71 @@ export default function Results(props) {
   const [tempo, setTempo] = useState({ min: 50, max: 200 });
   const [seeds, setSeeds] = useState();
   const [seedColors, setSeedColors] = useState({});
+
+  /**
+   * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
+   */
+  const saveStateAndLogin = () => {
+    localStorage.setItem('songs', JSON.stringify(songs));
+    localStorage.setItem('playlist', JSON.stringify(playlist));
+    localStorage.setItem('name', JSON.stringify(name));
+    localStorage.setItem('count', JSON.stringify(count));
+    localStorage.setItem('popularity', JSON.stringify(popularity));
+    localStorage.setItem('danceability', JSON.stringify(danceability));
+    localStorage.setItem('energy', JSON.stringify(energy));
+    localStorage.setItem('acousticness', JSON.stringify(acousticness));
+    localStorage.setItem('valence', JSON.stringify(valence));
+    localStorage.setItem('tempo', JSON.stringify(tempo));
+    localStorage.setItem('seeds', JSON.stringify(seeds));
+    localStorage.setItem('seedColors', JSON.stringify(seedColors));
+
+    const URI = process.env.REACT_APP_API_URL;
+    window.location = `${URI}/login?redirectTo=results`;
+  };
+
+  /**
+   * Check if state is done updating from local storage
+   * @returns {boolean|boolean}
+   */
+  const checkStateUpdatedFromStorage = () => {
+    return (
+      JSON.stringify(songs) === localStorage.getItem('songs') &&
+      JSON.stringify(playlist) === localStorage.getItem('playlist') &&
+      JSON.stringify(name) === localStorage.getItem('name') &&
+      JSON.stringify(count) === localStorage.getItem('count') &&
+      JSON.stringify(popularity) === localStorage.getItem('popularity') &&
+      JSON.stringify(danceability) === localStorage.getItem('danceability') &&
+      JSON.stringify(energy) === localStorage.getItem('energy') &&
+      JSON.stringify(acousticness) === localStorage.getItem('acousticness') &&
+      JSON.stringify(valence) === localStorage.getItem('valence') &&
+      JSON.stringify(tempo) === localStorage.getItem('tempo') &&
+      JSON.stringify(seeds) === localStorage.getItem('seeds') &&
+      JSON.stringify(seedColors) === localStorage.getItem('seedColors')
+    );
+  };
+
+  /**
+   * Restore results page state from localstorage
+   */
+  const restoreState = () => {
+    setLoading(true);
+    initialFetchComplete.current = false;
+
+    setSongs(JSON.parse(localStorage.getItem('songs')));
+    setPlaylist(JSON.parse(localStorage.getItem('playlist')));
+    setName(JSON.parse(localStorage.getItem('name')));
+    setCount(JSON.parse(localStorage.getItem('count')));
+    setPopularity(JSON.parse(localStorage.getItem('popularity')));
+    setDanceability(JSON.parse(localStorage.getItem('danceability')));
+    setEnergy(JSON.parse(localStorage.getItem('energy')));
+    setAcousticness(JSON.parse(localStorage.getItem('acousticness')));
+    setValence(JSON.parse(localStorage.getItem('valence')));
+    setTempo(JSON.parse(localStorage.getItem('tempo')));
+    setSeeds(JSON.parse(localStorage.getItem('seeds')));
+    setSeedColors(JSON.parse(localStorage.getItem('seedColors')));
+
+    setLoading(false);
+  };
 
   // Fetch initial songs and load
   useEffect(() => {
@@ -184,97 +269,10 @@ export default function Results(props) {
       })();
   }, [seeds]);
 
-  // // If invalid access
-  // if (!(accessToken && props.location.state && (props.location.state.playlist || props.location.state.seed))) {
-  //   return <Redirect to="/" />;
-  // }
-
-  /**
-   * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
-   */
-  const saveStateAndLogin = () => {
-    localStorage.setItem('songs', JSON.stringify(songs));
-    localStorage.setItem('playlist', JSON.stringify(playlist));
-    localStorage.setItem('name', JSON.stringify(name));
-    localStorage.setItem('count', JSON.stringify(count));
-    localStorage.setItem('popularity', JSON.stringify(popularity));
-    localStorage.setItem('danceability', JSON.stringify(danceability));
-    localStorage.setItem('energy', JSON.stringify(energy));
-    localStorage.setItem('acousticness', JSON.stringify(acousticness));
-    localStorage.setItem('valence', JSON.stringify(valence));
-    localStorage.setItem('tempo', JSON.stringify(tempo));
-    localStorage.setItem('seeds', JSON.stringify(seeds));
-    localStorage.setItem('seedColors', JSON.stringify(seedColors));
-
-    const URI = process.env.REACT_APP_API_URL;
-    window.location = `${URI}/login?redirectTo=results`;
-  };
-
-  /**
-   * Check if results state stored in localstorage
-   */
-  const checkStateStored = () => {
-    return (
-      localStorage.getItem('songs') &&
-      localStorage.getItem('playlist') &&
-      localStorage.getItem('name') &&
-      localStorage.getItem('count') &&
-      localStorage.getItem('popularity') &&
-      localStorage.getItem('danceability') &&
-      localStorage.getItem('energy') &&
-      localStorage.getItem('acousticness') &&
-      localStorage.getItem('valence') &&
-      localStorage.getItem('tempo') &&
-      localStorage.getItem('seeds') &&
-      localStorage.getItem('seedColors')
-    );
-  };
-
-  /**
-   * Check if state is done updating from local storage
-   * @returns {boolean|boolean}
-   */
-  const checkStateUpdatedFromStorage = () => {
-    return (
-      JSON.stringify(songs) === localStorage.getItem('songs') &&
-      JSON.stringify(playlist) === localStorage.getItem('playlist') &&
-      JSON.stringify(name) === localStorage.getItem('name') &&
-      JSON.stringify(count) === localStorage.getItem('count') &&
-      JSON.stringify(popularity) === localStorage.getItem('popularity') &&
-      JSON.stringify(danceability) === localStorage.getItem('danceability') &&
-      JSON.stringify(energy) === localStorage.getItem('energy') &&
-      JSON.stringify(acousticness) === localStorage.getItem('acousticness') &&
-      JSON.stringify(valence) === localStorage.getItem('valence') &&
-      JSON.stringify(tempo) === localStorage.getItem('tempo') &&
-      JSON.stringify(seeds) === localStorage.getItem('seeds') &&
-      JSON.stringify(seedColors) === localStorage.getItem('seedColors')
-    );
-  };
-
-  /**
-   * Restore results page state from localstorage
-   */
-  const restoreState = () => {
-    console.log('Restoring state');
-    console.log(initialFetchComplete.current);
-    setLoading(true);
-    initialFetchComplete.current = false;
-
-    setSongs(JSON.parse(localStorage.getItem('songs')));
-    setPlaylist(JSON.parse(localStorage.getItem('playlist')));
-    setName(JSON.parse(localStorage.getItem('name')));
-    setCount(JSON.parse(localStorage.getItem('count')));
-    setPopularity(JSON.parse(localStorage.getItem('popularity')));
-    setDanceability(JSON.parse(localStorage.getItem('danceability')));
-    setEnergy(JSON.parse(localStorage.getItem('energy')));
-    setAcousticness(JSON.parse(localStorage.getItem('acousticness')));
-    setValence(JSON.parse(localStorage.getItem('valence')));
-    setTempo(JSON.parse(localStorage.getItem('tempo')));
-    setSeeds(JSON.parse(localStorage.getItem('seeds')));
-    setSeedColors(JSON.parse(localStorage.getItem('seedColors')));
-
-    setLoading(false);
-  };
+  // If invalid access
+  if (!(props?.location?.state?.playlist || props?.location?.state?.seed || checkStateStored() || songs)) {
+    return <Redirect to="/" />;
+  }
 
   const savePlaylist = () => {
     ReactGA.event({

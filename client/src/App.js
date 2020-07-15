@@ -1,5 +1,6 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
+import { Route, BrowserRouter as Router } from 'react-router-dom';
 import { Layout } from 'antd';
 import ReactGA from 'react-ga';
 
@@ -10,16 +11,17 @@ import Footer from './components/Footer';
 
 import './App.less';
 
-import { Route, BrowserRouter as Router } from 'react-router-dom';
+import createHistory from 'history/createBrowserHistory';
 
 const { Content } = Layout;
 
 ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
+const history = createHistory();
 
 function App() {
   return (
     <div className="body">
-      <Router>
+      <Router history={history}>
         <Route exact path="/" component={Home} />
         <Layout>
           <Content style={{ width: '90%', margin: 'auto', height: '100%', marginBottom: '2em' }}>

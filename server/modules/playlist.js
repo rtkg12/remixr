@@ -156,6 +156,8 @@ function splitArrIntoChunks(array, chunkSize) {
 }
 
 function buildTrackData(trackData, popularity) {
+  trackData = trackData.filter(x => x !== null);
+
   const danceability = trackData.map(x => x.danceability);
   const energy = trackData.map(x => x.energy);
   const key = trackData.map(x => x.key);
@@ -210,9 +212,6 @@ function getUserTopArtists(loggedInSpotify) {
         const merged = [].concat.apply([], allTopArtists);
         const topArtistIds = merged.map(x => x.id);
         resolve(topArtistIds);
-      })
-      .catch(error => {
-        console.log(error);
       });
   });
 }
@@ -223,10 +222,15 @@ function getUserTopArtists(loggedInSpotify) {
  * @param {*} tracks
  * @param {*} numOfTopArtists Number of top artists to be returned
  */
-async function getArtistRankRecommendations(loggedInSpotify, tracks, numOfTopArtists) {
+async function getArtistRankRecommendations(loggedInSpotify, tracks, numOfTopArtists, isLoggedIn) {
   const promiseArray = [];
   promiseArray.push(getListOfArtistsFromTracks(tracks));
-  promiseArray.push(getUserTopArtists(loggedInSpotify));
+
+  if (isLoggedIn) {
+    promiseArray.push(getUserTopArtists(loggedInSpotify));
+  } else { // Quick fix. TODO: Find another solution
+    promiseArray.push(getListOfArtistsFromTracks(tracks));
+  }
 
   let artistList = await Promise.all(promiseArray);
 
@@ -286,43 +290,75 @@ function getUserTopSongs(loggedInSpotify) {
   });
 }
 
-function getTrackRankRecommendations(loggedInSpotify, tracks, numOfTopTracks) {
-  return new Promise((resolve, reject) => {
-    const playlistTracks = tracks.map(x => x.track.id);
-    getUserTopSongs(loggedInSpotify).then(topUserTracks => {
-      let fullTrackList = topUserTracks.concat(playlistTracks);
-      fullTrackList = _.shuffle(fullTrackList);
-      // Count number of occurrences of each id in array
-      fullTrackList = _.countBy(fullTrackList);
-      // Sort by count in descending order
-      const sorted = Object.keys(fullTrackList).sort(function(a, b) {
-        return -(fullTrackList[a] - fullTrackList[b]);
-      });
+async function getTrackRankRecommendations(loggedInSpotify, tracks, numOfTopTracks, isLoggedIn) {
+  const playlistTracks = tracks.map(x => x.track.id);
 
-      const topXTracks = [];
-      let count = 0;
-      for (let i = 0; i < sorted.length; i++) {
-        if (count === numOfTopTracks) {
-          break;
-        }
-        if (_.contains(playlistTracks, sorted[i])) {
-          topXTracks.push(sorted[i]);
-          count++;
-        }
-      }
-      resolve(topXTracks);
-    });
+  // TODO: This is a quick fix. Find a better solution
+  let topUserTracks;
+  if (isLoggedIn) {
+    topUserTracks = await getUserTopSongs(loggedInSpotify);
+  } else {
+    topUserTracks = playlistTracks;
+  }
+
+  let fullTrackList = topUserTracks.concat(playlistTracks);
+  fullTrackList = _.shuffle(fullTrackList);
+  // Count number of occurrences of each id in array
+  fullTrackList = _.countBy(fullTrackList);
+  // Sort by count in descending order
+  const sorted = Object.keys(fullTrackList).sort(function(a, b) {
+    return -(fullTrackList[a] - fullTrackList[b]);
+  });
+
+  const topXTracks = [];
+  let count = 0;
+  for (let i = 0; i < sorted.length; i++) {
+    if (count === numOfTopTracks) {
+      break;
+    }
+    if (_.contains(playlistTracks, sorted[i])) {
+      topXTracks.push(sorted[i]);
+      count++;
+    }
+  }
+  return topXTracks;
+
+  return new Promise((resolve, reject) => {
+    // const playlistTracks = tracks.map(x => x.track.id);
+    // getUserTopSongs(loggedInSpotify).then(topUserTracks => {
+    //   let fullTrackList = topUserTracks.concat(playlistTracks);
+    //   fullTrackList = _.shuffle(fullTrackList);
+    //   // Count number of occurrences of each id in array
+    //   fullTrackList = _.countBy(fullTrackList);
+    //   // Sort by count in descending order
+    //   const sorted = Object.keys(fullTrackList).sort(function(a, b) {
+    //     return -(fullTrackList[a] - fullTrackList[b]);
+    //   });
+    //
+    //   const topXTracks = [];
+    //   let count = 0;
+    //   for (let i = 0; i < sorted.length; i++) {
+    //     if (count === numOfTopTracks) {
+    //       break;
+    //     }
+    //     if (_.contains(playlistTracks, sorted[i])) {
+    //       topXTracks.push(sorted[i]);
+    //       count++;
+    //     }
+    //   }
+    //   resolve(topXTracks);
+    // });
   });
 }
 
 /**
  * Query spotify API for recommendations with the given parameters
- * @param loggedInSpotify
+ * @param spotifyApi
  * @param parameters
  */
-async function getRecommendations(loggedInSpotify, parameters) {
+async function getRecommendations(spotifyApi, parameters) {
   try {
-    let recommendationList = await loggedInSpotify.getRecommendations(parameters);
+    let recommendationList = await spotifyApi.getRecommendations(parameters);
     return recommendationList.body.tracks;
   } catch (e) {
     console.log(e);

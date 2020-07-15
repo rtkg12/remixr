@@ -2,16 +2,17 @@ const stats = require('simple-statistics');
 const User = require('./user');
 const Playlist = require('./playlist');
 
-async function calculateStats(loggedInSpotify, playlistId) {
+async function calculateStats(loggedInSpotify, playlistId, isLoggedIn) {
   let tracks = await Playlist.getPlaylistTracks(loggedInSpotify, playlistId);
   tracks = tracks.filter(item => item.track != null)
 
   let artists = await Playlist.getListOfArtistsFromTracks(tracks);
+
   const promiseArray = [];
 
   promiseArray.push(Playlist.extractTrackFeatures(loggedInSpotify, tracks));
-  promiseArray.push(Playlist.getArtistRankRecommendations(loggedInSpotify, tracks, 2));
-  promiseArray.push(Playlist.getTrackRankRecommendations(loggedInSpotify, tracks, 3));
+  promiseArray.push(Playlist.getArtistRankRecommendations(loggedInSpotify, tracks, 2, isLoggedIn));
+  promiseArray.push(Playlist.getTrackRankRecommendations(loggedInSpotify, tracks, 3, isLoggedIn));
 
   let output = await Promise.all(promiseArray);
   const parameters = calculateFeatureParameters(output[0]);
