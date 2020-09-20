@@ -1,10 +1,13 @@
 {
-  "name": "spotify-playlist-generator",
+  "name": "server",
   "version": "1.0.0",
   "description": "Generates a spotify playlist similar to a given user playlist",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon",
+    "deploy": "pm2 start index.js",
+    "redeploy": "pm2 reload index.js",
+    "undeploy": "pm2 delete index.js"
   },
   "repository": {
     "type": "git",
@@ -37,6 +40,7 @@
     "express": "^4.17.1",
     "helmet": "^3.23.3",
     "nodemon": "^2.0.4",
+    "pm2": "^4.4.1",
     "simple-statistics": "^7.1.0",
     "spotify-web-api-node": "^4.0.0",
     "underscore": "^1.10.2"

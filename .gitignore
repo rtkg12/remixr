@@ -4,3 +4,7 @@
 **/.idea/
 
 **/*.env
+
+server/build/
+
+/node_modules

@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "remixr",
+  "workspaces": [
+    "client", "server"
+  ],
+  "scripts": {
+    "client-develop": "yarn workspace client start",
+    "server-develop": "yarn workspace server start",
+    "develop": "concurrently --kill-others-on-fail \"yarn server-develop\"  \"yarn client-develop\"",
+    "build": "(rm -rf ./client/build && rm -rf ./server/build && yarn workspace client build && cp -ar ./client/build ./server)",
+    "deploy": "yarn build && yarn workspace server deploy"
+  },
+  "dependencies": {
+    "concurrently": "^5.3.0"
+  }
+}

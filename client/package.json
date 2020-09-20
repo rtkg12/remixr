@@ -1,5 +1,5 @@
 {
-  "name": "spotify-frontend",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -50,6 +50,7 @@
     "@hot-loader/react-dom": "^16.13.0",
     "craco-plugin-react-hot-reload": "^0.1.0",
     "react-hot-loader": "^4.12.21",
+    "react-test-renderer": "^16.13.1",
     "webpack-bundle-analyzer": "^3.8.0",
     "webpackbar": "^4.0.0"
   }
