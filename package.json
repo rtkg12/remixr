@@ -8,7 +8,7 @@
     "client-develop": "yarn workspace client start",
     "server-develop": "yarn workspace server start",
     "develop": "concurrently --kill-others-on-fail \"yarn server-develop\"  \"yarn client-develop\"",
-    "build": "(rm -rf ./client/build && rm -rf ./server/build && yarn workspace client build && cp -ar ./client/build ./server)",
+    "build": "(rm -rf ./client/build && rm -rf ./server/build && yarn workspace client build && cp -r ./client/build ./server)",
     "deploy": "yarn build && yarn workspace server deploy"
   },
   "dependencies": {
