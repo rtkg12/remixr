@@ -1,20 +1,25 @@
 const express = require('express');
+
 const router = express.Router();
 
 const user = require('./modules/user');
 const playlist = require('./modules/playlist');
 const stats = require('./modules/processStats');
 
+const ENV = process.env.NODE_ENV;
+const isProduction = ENV === 'production';
+
 router.get('/login', async function(req, res) {
   user.login().then(ret => {
     res.cookie('stateKey', ret.state);
 
     // Where to redirect after login. Default expiry time of 3 minutes
-    req.query.redirectTo && res.cookie('redirectTo', req.query.redirectTo, {
-      maxAge: 3 * 60 * 1000,
-    });
+    req.query.redirectTo &&
+      res.cookie('redirectTo', req.query.redirectTo, {
+        maxAge: 3 * 60 * 1000,
+      });
 
-    let authorizeURL = `${ret.authorizeURL}&show_dialog=true`;
+    const authorizeURL = `${ret.authorizeURL}&show_dialog=true`;
     res.redirect(authorizeURL);
   });
 });
@@ -39,8 +44,16 @@ router.get('/callback', async function(req, res) {
     // 95 to prevent access token expiring early because of delays in this request
     res.cookie('access_token', data.body.access_token, {
       maxAge: data.body.expires_in * 0.95 * 1000,
+      domain: isProduction ? '.remixr.xyz' : 'localhost',
+      secure: true,
+      sameSite: true,
     });
-    res.cookie('refresh_token', data.body.refresh_token);
+
+    res.cookie('refresh_token', data.body.refresh_token, {
+      domain: isProduction ? '.remixr.xyz' : 'localhost',
+      secure: true,
+      sameSite: true,
+    });
 
     let userID = await user.getUserId(data.body.access_token);
     res.cookie('userID', userID);
