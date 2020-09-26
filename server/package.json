@@ -5,20 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
-    "deploy": "pm2 start index.js",
-    "redeploy": "pm2 reload index.js",
-    "undeploy": "pm2 delete index.js"
+    "deploy": "pm2 startOrReload pm2.json",
+    "undeploy": "pm2 delete pm2.json"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rtkg12/spotify-playlist-generator.git"
-  },
-  "author": "",
+  "author": "Ritik Goyal",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/rtkg12/spotify-playlist-generator/issues"
-  },
-  "homepage": "https://github.com/rtkg12/spotify-playlist-generator#readme",
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",

@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "remixr",
+      "script": "./index.js",
+      "exec_mode": "fork",
+      "instances": 1
+    }
+  ]
+}
