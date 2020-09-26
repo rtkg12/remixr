@@ -4,7 +4,10 @@
       "name": "remixr",
       "script": "./index.js",
       "exec_mode": "fork",
-      "instances": 1
+      "instances": 1,
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   ]
 }
