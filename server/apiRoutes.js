@@ -42,18 +42,17 @@ router.get('/callback', async function(req, res) {
     let data = await user.spotifyApi.authorizationCodeGrant(code);
 
     // 95 to prevent access token expiring early because of delays in this request
-    res.cookie('access_token', data.body.access_token, {
+    const tokenSecurityData = {
+      domain: isProduction ? '.remixr.xyz' : 'localhost',
+      secure: true,
+      sameSite: true,
+    };
+    const accessTokenMaxAge = {
       maxAge: data.body.expires_in * 0.95 * 1000,
-      domain: isProduction ? '.remixr.xyz' : 'localhost',
-      secure: true,
-      sameSite: true,
-    });
+    };
 
-    res.cookie('refresh_token', data.body.refresh_token, {
-      domain: isProduction ? '.remixr.xyz' : 'localhost',
-      secure: true,
-      sameSite: true,
-    });
+    res.cookie('access_token', data.body.access_token, isProduction ? {...tokenSecurityData, ...accessTokenMaxAge} : accessTokenMaxAge);
+    res.cookie('refresh_token', data.body.refresh_token, isProduction ? tokenSecurityData : {});
 
     let userID = await user.getUserId(data.body.access_token);
     res.cookie('userID', userID);
