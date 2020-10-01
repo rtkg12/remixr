@@ -43,7 +43,7 @@ router.get('/callback', async function(req, res) {
 
     // 95 to prevent access token expiring early because of delays in this request
     const tokenSecurityData = {
-      domain: isProduction ? '.remixr.xyz' : 'localhost',
+      domain: '.remixr.xyz',
       secure: true,
       sameSite: true,
     };
