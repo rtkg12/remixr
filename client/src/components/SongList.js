@@ -1,4 +1,4 @@
-import React, { useState,useEffect} from 'react';
+import React, { useState,useEffect, useCallback} from 'react';
 import { Avatar, Col, List } from 'antd';
 import CaretRightOutlined from '@ant-design/icons/CaretRightOutlined';
 // import ExclamationCircleFilled from '@ant-design/icons/ExclamationCircleFilled'
@@ -11,18 +11,8 @@ import { FaHeart, FaExclamationTriangle } from 'react-icons/fa';
 const SongList = (props) => {
   const [sound, setSound] = useState();
   const [currentlyPlaying, setCurrentlyPlaying] = useState();
-  const [accessToken] = useState(props.accessToken);
-  const [likedSongs] = useState(new Set([]));
-  let { checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks } = props.trackMethods;
+  let { isLoggedIn, likeSongs,likedSongs } = props;
 
-  useEffect(()=>{
-
-    (async()=>{
-      let savedTracks = await getMySavedTracks(accessToken);
-      savedTracks.body.items.forEach(item=> likedSongs.add(item.track.id));
-    })();
-
-  });
   const playPreview = (preview_url, id) => {
     setSound(preview_url);
     setCurrentlyPlaying(id);
@@ -31,20 +21,6 @@ const SongList = (props) => {
   const stopPreview = () => {
     setSound(null);
     setCurrentlyPlaying(null);
-  };
-
-  const likeSongs = (id) => {
-    
-    (async()=>{
-      const isLiked = await checkContainTrack(accessToken,[id]);
-      if (!isLiked.body[0]) {
-        likedSongs.add(id);
-        await addToMySavedTracks(accessToken,[id]);
-      } else {
-        likedSongs.delete(id);
-        await removeFromMySavedTracks(accessToken,[id]);
-      };  
-    })()
   };
 
   return (
@@ -93,13 +69,13 @@ const SongList = (props) => {
           </Col>
           
           <Col span={2} style={{display:'flex', justifyContent:'space-between',flexWrap:'wrap',alignItems:'center'}}>
-          <FaHeart
+          {isLoggedIn && <FaHeart
                 style={{
                   color: likedSongs.has(item.id)? "#68eb64":"black",
                   cursor: "pointer",
                   fontSize:'1.4em'
                 }}
-              onClick={()=>likeSongs(item.id)}/>
+              onClick={()=>likeSongs(item.id)}/> }
             {item.preview_url ? (
               currentlyPlaying === item.id ? (
                 <PauseOutlined

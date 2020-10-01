@@ -16,6 +16,7 @@ import { authenticate, getRecommendations, getArtists, getTracks, checkContainTr
 
 import Cookies from 'js-cookie';
 import { Redirect } from 'react-router-dom';
+import NavButton from './NavButton';
 
 const { Panel } = Collapse;
 const { Title } = Typography;
@@ -24,9 +25,6 @@ const transport = axios.create({
   withCredentials: true,
 });
 
-const trackMethods = {
-  checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks
-}
 /**
  * Check if results state stored in localstorage
  */
@@ -48,7 +46,7 @@ const checkStateStored = () => {
 };
 
 export default function Results(props) {
-  const [accessToken] = useState(Cookies.get('access_token'));
+  const [accessToken,setAccessToken] = useState(Cookies.get('access_token'));
   const [songs, setSongs] = useState([]);
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +64,9 @@ export default function Results(props) {
   const [tempo, setTempo] = useState({ min: 50, max: 200 });
   const [seeds, setSeeds] = useState();
   const [seedColors, setSeedColors] = useState({});
+  const [likedSongs,setLikedSongs] = useState(new Set([]));
+  const [state, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
 
   /**
    * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
@@ -430,6 +431,53 @@ export default function Results(props) {
     return <ErrorScreen />;
   }
 
+  /**
+   * get all favorite tracks
+   */
+  useEffect(()=>{
+    (async()=>{
+      try {
+        let savedTracks = await getMySavedTracks(accessToken);
+        savedTracks.body.items.forEach(item=> likedSongs.add(item.track.id));
+      } catch(e){
+        // redirect user to login
+      }
+    })();
+  });
+
+
+  /**
+   * add / remove songs from favorites 
+   */
+  const likeSongs = (id) => {
+    (async()=>{
+      if(isLoggedIn) {
+        const isLiked = await checkContainTrack(accessToken,[id]);
+        if (!isLiked.body[0]) {
+          likedSongs.add(id);
+          try {
+            await addToMySavedTracks(accessToken,[id]);
+            setLikedSongs(likedSongs);
+            forceUpdate();
+          } catch (e) {
+            console.error(e);
+          }
+          
+        } else {
+          try {
+            likedSongs.delete(id);
+            await removeFromMySavedTracks(accessToken,[id]);
+            setLikedSongs(likedSongs);
+            forceUpdate();
+          } catch(e) {
+            console.error(e);
+          }
+        };  
+      } else {
+        // prompt user for login here
+      }
+    })()
+  }
   return (
     <div>
       <Navbar />
@@ -464,7 +512,7 @@ export default function Results(props) {
 
         {/* Songs */}
         <Col xs={24} sm={24} md={24} lg={16} xl={16}>
-          <SongList loading={loading} songs={songs} accessToken={accessToken} trackMethods={trackMethods}/>
+          <SongList loading={loading} songs={songs}isLoggedIn={isLoggedIn} likedSongs={likedSongs} likeSongs={likeSongs}/>
         </Col>
 
         {/* Web settings drawer */}
