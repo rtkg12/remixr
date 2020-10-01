@@ -12,7 +12,7 @@ import ErrorScreen from './ErrorScreen';
 import SongList from './SongList';
 import SearchSeeds from './SearchSeeds';
 
-import { authenticate, getRecommendations, getArtists, getTracks } from '../modules/Spotify.js';
+import { authenticate, getRecommendations, getArtists, getTracks, checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks } from '../modules/Spotify.js';
 
 import Cookies from 'js-cookie';
 import { Redirect } from 'react-router-dom';
@@ -24,6 +24,9 @@ const transport = axios.create({
   withCredentials: true,
 });
 
+const trackMethods = {
+  checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks
+}
 /**
  * Check if results state stored in localstorage
  */
@@ -461,7 +464,7 @@ export default function Results(props) {
 
         {/* Songs */}
         <Col xs={24} sm={24} md={24} lg={16} xl={16}>
-          <SongList loading={loading} songs={songs} />
+          <SongList loading={loading} songs={songs} accessToken={accessToken} trackMethods={trackMethods}/>
         </Col>
 
         {/* Web settings drawer */}

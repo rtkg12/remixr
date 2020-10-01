@@ -6,15 +6,14 @@ import CaretRightOutlined from '@ant-design/icons/CaretRightOutlined';
 import PauseOutlined from '@ant-design/icons/PauseOutlined';
 import ReactGA from 'react-ga';
 import { FaHeart, FaExclamationTriangle } from 'react-icons/fa';
-import { checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks } from '../modules/Spotify';
-import Cookies from 'js-cookie';
 
 
 const SongList = (props) => {
   const [sound, setSound] = useState();
   const [currentlyPlaying, setCurrentlyPlaying] = useState();
-  const [accessToken] = useState(Cookies.get('access_token'));
+  const [accessToken] = useState(props.accessToken);
   const [likedSongs] = useState(new Set([]));
+  let { checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks } = props.trackMethods;
 
   useEffect(()=>{
 
