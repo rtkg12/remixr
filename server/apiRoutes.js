@@ -184,4 +184,15 @@ router.get('/tracks', async (req, res) => {
   }
 });
 
+router.get('/saved-tracks', async (req, res) => {
+  try {
+    const spotify = await user.createAPI();
+    const { trackIds } = req.query;
+    const results =  await spotify.getMySavedTracks(trackIds);
+    res.json({body: results.body});
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 module.exports = router
