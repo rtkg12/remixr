@@ -11,12 +11,12 @@ import Footer from './components/Footer';
 
 import './App.less';
 
-import createHistory from 'history/createBrowserHistory';
+import {createBrowserHistory} from 'history';
 
 const { Content } = Layout;
 
 ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
-const history = createHistory();
+const history = createBrowserHistory();
 
 function App() {
   return (

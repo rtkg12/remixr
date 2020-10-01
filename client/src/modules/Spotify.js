@@ -123,4 +123,40 @@ const getTracks = async (accessToken, trackIds) => {
   return response.body.tracks.map(extractTrackInfo);
 };
 
-export { authenticate, search, getRecommendations, extractArtistInfo, extractTrackInfo, getArtists, getTracks };
+const checkContainTrack = async (accessToken, trackIds) => {
+  let response;
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.containsMySavedTracks(trackIds);
+  } 
+  return response;
+};
+
+const addToMySavedTracks = async (accessToken,trackIds) => {
+  let response;
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.addToMySavedTracks(trackIds);
+    return response;
+  } 
+};
+
+const removeFromMySavedTracks = async (accessToken,trackIds) => {
+  let response;
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.removeFromMySavedTracks(trackIds);
+    return response;
+  } 
+};
+
+const getMySavedTracks = async (accessToken,trackIds) => {
+  let response;
+  if (accessToken) {
+    const spotify = authenticate(accessToken);
+    response = await spotify.getMySavedTracks(trackIds);
+    return response;
+  } 
+};
+
+export { authenticate, search, getRecommendations, extractArtistInfo, extractTrackInfo, getArtists, getTracks, checkContainTrack, addToMySavedTracks, removeFromMySavedTracks, getMySavedTracks };
