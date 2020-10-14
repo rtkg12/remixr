@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import axios from 'axios';
 import Vibrant from 'node-vibrant';
 import { Row, Col, Collapse, Typography, Affix, Tag, message, Space } from 'antd';
@@ -16,6 +16,7 @@ import { authenticate, getRecommendations, getArtists, getTracks } from '../modu
 
 import Cookies from 'js-cookie';
 import { Redirect } from 'react-router-dom';
+import {Context} from "../store/Store";
 
 const { Panel } = Collapse;
 const { Title } = Typography;
@@ -46,7 +47,6 @@ const checkStateStored = () => {
 
 export default function Results(props) {
   const [accessToken] = useState(Cookies.get('access_token'));
-  const [songs, setSongs] = useState([]);
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('remixr');
@@ -64,11 +64,13 @@ export default function Results(props) {
   const [seeds, setSeeds] = useState();
   const [seedColors, setSeedColors] = useState({});
 
+  const [state, dispatch] = useContext(Context);
+
   /**
    * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
    */
   const saveStateAndLogin = () => {
-    localStorage.setItem('songs', JSON.stringify(songs));
+    localStorage.setItem('songs', JSON.stringify(state.songs));
     localStorage.setItem('playlist', JSON.stringify(playlist));
     localStorage.setItem('name', JSON.stringify(name));
     localStorage.setItem('count', JSON.stringify(count));
@@ -91,7 +93,7 @@ export default function Results(props) {
    */
   const checkStateUpdatedFromStorage = () => {
     return (
-      JSON.stringify(songs) === localStorage.getItem('songs') &&
+      JSON.stringify(state.songs) === localStorage.getItem('songs') &&
       JSON.stringify(playlist) === localStorage.getItem('playlist') &&
       JSON.stringify(name) === localStorage.getItem('name') &&
       JSON.stringify(count) === localStorage.getItem('count') &&
@@ -113,7 +115,8 @@ export default function Results(props) {
     setLoading(true);
     initialFetchComplete.current = false;
 
-    setSongs(JSON.parse(localStorage.getItem('songs')));
+    dispatch({type: 'UPDATE_SONGS', payload: JSON.parse(localStorage.getItem('songs'))});
+
     setPlaylist(JSON.parse(localStorage.getItem('playlist')));
     setName(JSON.parse(localStorage.getItem('name')));
     setCount(JSON.parse(localStorage.getItem('count')));
@@ -154,7 +157,7 @@ export default function Results(props) {
           try {
             let response = await transport.get(url);
 
-            setSongs(response.data.songs);
+            dispatch({type: "UPDATE_SONGS", payload: response.data.songs});
 
             const parameters = response.data.parameters;
 
@@ -230,7 +233,7 @@ export default function Results(props) {
 
       getRecommendations(accessToken, parameters, seeds, count)
         .then((songs) => {
-          setSongs(songs);
+          dispatch({type: "UPDATE_SONGS", payload: state.songs})
           setLoading(false);
         })
         .catch((error) => {
@@ -270,7 +273,7 @@ export default function Results(props) {
   }, [seeds]);
 
   // If invalid access
-  if (!(props?.location?.state?.playlist || props?.location?.state?.seed || checkStateStored() || songs)) {
+  if (!(props?.location?.state?.playlist || props?.location?.state?.seed || checkStateStored() || state.songs)) {
     return <Redirect to="/" />;
   }
 
@@ -284,7 +287,7 @@ export default function Results(props) {
     transport
       .post(url, {
         name,
-        tracks: songs.map((item) => item.uri),
+        tracks: state.songs.map((item) => item.uri),
       })
       .then(
         (response) => {
@@ -461,7 +464,7 @@ export default function Results(props) {
 
         {/* Songs */}
         <Col xs={24} sm={24} md={24} lg={16} xl={16}>
-          <SongList loading={loading} songs={songs} />
+          <SongList loading={loading} songs={state.songs} />
         </Col>
 
         {/* Web settings drawer */}
