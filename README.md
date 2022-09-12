@@ -11,9 +11,9 @@ Smart playlist generator for Spotify
 
 ## Overview of Algorithm Used to Generate Similar Playlists
 
- - A set of parameters are generated to bound the traits of similar tracks, while a set of seeds are used to compare the similarity of others tracks
+ - A set of parameters are generated to bound the traits of similar tracks, while a set of seeds are used to inspire similar tracks
 
- - Calculate a range on features of tracks to use as parameters
+ - Calculate a range on track features to use as parameters
 	 1. Get all tracks in the specified playlist from the Spotify API
 	 2. Query Spotify for different track features, including:
 		- Descriptors of mood (Danceability, Valence, Energy, Tempo)
@@ -21,16 +21,16 @@ Smart playlist generator for Spotify
 		- Context (Liveness, Acousticness)
 		- Numerical values (Bars, Beats, Pitches, Timbre)
 	 3. Calculate the 0.1 and 0.9 quantile range for each feature
-		- This involved removing the lowest and highest 10% of values for each feature
-		- This will somewhat normalize the feature values
-	 4. Use these as min and max targets for each feature
+		- This involves removing the lowest and highest 10% of values for each feature
+		- This will somewhat normalize the feature ranges
+	 4. Use these values as min and max targets for each feature
 		- These parameter values will bound all tracks to be added to generated playlist
 
-- Extract most relevant artists and tracks to use as seeds
+- Extract the most relevant artists and tracks to use as seeds
 	1. Count the number of times each artist appears in the provided playlist
 	2. Count the number of times each artist appears in the user's listening history
 		- Listening history tracked across short (4 weeks), medium (6 months), and long (several years) terms
-		- Top 100 tracks are used from each time range
+		- The top 100 tracks are used from each time range
 		- Only artists that have at least one track in the provided playlist are counted from the listening history
 	3. Combine these two lists for a total artist list and count
 		- The top 2 most frequent artists from this list are chosen
@@ -39,7 +39,7 @@ Smart playlist generator for Spotify
 		- Generated using a combination of the same short, medium, and long time frames
 		- The top 3 most frequent tracks from this list are chosen
 		- Ties are broken randomly
-	4. These 2 artists and 3 tracks are the seeds used to generate other tracks
+	5. These 2 artists and 3 tracks are the seeds used to generate other tracks
 
 - The Spotify API is queried with the provided seeds and bounded by the paramaters to create a list of 25 recommended tracks
   
