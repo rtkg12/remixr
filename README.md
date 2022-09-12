@@ -9,19 +9,39 @@ Smart playlist generator for Spotify
 - Generate playlists based on personal playlist as a seed  
 - Tune parameters like popularity, mood, energy, etc. to further customize the playlist  
 
-## Algorithm to generate similar playlists
+## Overview of Algorithm Used to Generate Similar Playlists
 
- - Feature range calculation
-	 1. Get all tracks in the playlist from the Spotify API
-	 2. Query Spotify for different track features
+ - A set of parameters are generated to bound the traits of similar tracks, while a set of seeds are used to compare the similarity of others tracks
+
+ - Calculate a range on features of tracks to use as parameters
+	 1. Get all tracks in the specified playlist from the Spotify API
+	 2. Query Spotify for different track features, including:
+		- Descriptors of mood (Danceability, Valence, Energy, Tempo)
+		- Properties (Loudness, Speechiness, Instrumentalness)
+		- Context (Liveness, Acousticness)
+		- Numerical values (Bars, Beats, Pitches, Timbre)
 	 3. Calculate the 0.1 and 0.9 quantile range for each feature
+		- This involved removing the lowest and highest 10% of values for each feature
+		- This will somewhat normalize the feature values
 	 4. Use these as min and max targets for each feature
-- Extract most relevant artists and tracks as seeds
-	1. Find the frequency of artists and tracks in:
-		- Playlist
-		- User profile / listening history: short, medium, long term
-	2. Select most frequently appearing artists and tracks that exist in the playlist
-- Query Spotify API with the calculated seeds and parameter values
+		- These parameter values will bound all tracks to be added to generated playlist
+
+- Extract most relevant artists and tracks to use as seeds
+	1. Count the number of times each artist appears in the provided playlist
+	2. Count the number of times each artist appears in the user's listening history
+		- Listening history tracked across short (4 weeks), medium (6 months), and long (several years) terms
+		- Top 100 tracks are used from each time range
+		- Only artists that have at least one track in the provided playlist are counted from the listening history
+	3. Combine these two lists for a total artist list and count
+		- The top 2 most frequent artists from this list are chosen
+		- Ties are broken randomly
+	4. Count the number of times each track appears in the user's listening history
+		- Generated using a combination of the same short, medium, and long time frames
+		- The top 3 most frequent tracks from this list are chosen
+		- Ties are broken randomly
+	4. These 2 artists and 3 tracks are the seeds used to generate other tracks
+
+- The Spotify API is queried with the provided seeds and bounded by the paramaters to create a list of 25 recommended tracks
   
 ## Installation  
   
@@ -31,8 +51,9 @@ Smart playlist generator for Spotify
 
 ### Pre-requisites  
   
-1. Make a developer account at https://developer.spotify.com and obtain the `Client ID` and `Client Secret`  
-2. Update `client/.env` and `server/app.env` accordingly.
+1. Make a developer account at https://developer.spotify.com
+2. Create an app through your developer dashboard to obtain a `Client ID` and `Client Secret`  
+3. Update `server/app.env` to add the `Client ID` and `Client Secret` from your dashboard
 
 |Property| Description  |
 |--|--|
