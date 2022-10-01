@@ -2,17 +2,17 @@
 # ![remixr](https://github.com/rtkg12/remixr/blob/master/client/public/logo.png)  
   
   
-Smart playlist generator for Spotify  
+#remixr-A smart playlist generator for Spotify  
   
-### Features - Spotify login  
-- Generate playlists based on artist, track or playlist seeds  
-- Generate playlists based on personal playlist as a seed  
-- Tune parameters like popularity, mood, energy, etc. to further customize the playlist  
+### Features - Spotify login
+- Generate playlists based on artists, tracks or seed playlists 
+- Generate playlists based on personal playlists as a seed  
+- Tune parameters like **popularity**, **mood**, **energy**, etc. to further customize the playlist  
 
 ## Algorithm to generate similar playlists
 
  - Feature range calculation
-	 1. Get all tracks in the playlist from the Spotify API
+	 1. Get all the tracks in a playlist from the Spotify API
 	 2. Query Spotify for different track features
 	 3. Calculate the 0.1 and 0.9 quantile range for each feature
 	 4. Use these as min and max targets for each feature
