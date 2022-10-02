@@ -1,6 +1,7 @@
 import React from 'react';
 import { Slider, Typography } from 'antd';
 import ReactGA from 'react-ga';
+import '../index.css'
 
 const { Text } = Typography;
 
@@ -31,7 +32,7 @@ export default function ParametersMenu(props) {
   };
 
   return (
-    <div>
+    <div className='tune'>
       <div style={{}}>
         <Text>Number of songs</Text>
         <Slider min={10} max={100} defaultValue={props.values.count} onAfterChange={setCount} step={5} />
