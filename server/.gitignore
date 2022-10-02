@@ -8,6 +8,7 @@ yarn-error.log*
 #misc
 .app.env
 /.app.env
+remixr\server\app.env
 
 # Runtime data
 pids
