@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactGA from 'react-ga';
 
-function Footer() {
+const Footer = () => {
   return (
     <footer>
       <span>
@@ -47,6 +47,7 @@ function Footer() {
         </a>
       </span>
     </footer>
+  
   );
 }
 

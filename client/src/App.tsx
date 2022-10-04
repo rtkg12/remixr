@@ -1,8 +1,9 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
-import { Route, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Router } from 'react-router';
 import { Layout } from 'antd';
 import ReactGA from 'react-ga';
+import { createBrowserHistory } from "history";
 
 import Home from './components/Home';
 import Playlist from './components/Playlists';
@@ -11,14 +12,14 @@ import Footer from './components/Footer';
 
 import './App.less';
 
-import createHistory from 'history/createBrowserHistory';
-
 const { Content } = Layout;
 
-ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
-const history = createHistory();
+const trackingId = process.env.REACT_APP_TRACKING_ID || ''
+ReactGA.initialize(trackingId);
 
-function App() {
+const history = createBrowserHistory();
+
+const App = () => {
   return (
     <div className="body">
       <Router history={history}>

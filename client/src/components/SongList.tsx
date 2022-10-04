@@ -3,12 +3,24 @@ import { Avatar, Col, List } from 'antd';
 import CaretRightOutlined from '@ant-design/icons/CaretRightOutlined';
 import PauseOutlined from '@ant-design/icons/PauseOutlined';
 import ReactGA from 'react-ga';
+import { SpinProps } from 'antd/lib/spin';
 
-const SongList = (props) => {
-  const [sound, setSound] = useState();
-  const [currentlyPlaying, setCurrentlyPlaying] = useState();
+const SongList = (props: {
+  loading: boolean;
+  songs:
+    | {
+        id: string;
+        preview_url: string;
+        name: string;
+        artists: { name: string }[];
+        album: { images: { url: string }[] };
+      }[]
+    | undefined;
+}) => {
+  const [sound, setSound] = useState<string | null>(null);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
 
-  const playPreview = (preview_url, id) => {
+  const playPreview = (preview_url: string, id: string) => {
     setSound(preview_url);
     setCurrentlyPlaying(id);
   };
@@ -25,7 +37,7 @@ const SongList = (props) => {
       itemLayout="horizontal"
       loading={props.loading}
       dataSource={props.songs}
-      renderItem={(item) => (
+      renderItem={item => (
         <List.Item
           className="playlistItem"
           style={{

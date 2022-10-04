@@ -12,10 +12,11 @@ import ErrorScreen from './ErrorScreen';
 import SongList from './SongList';
 import SearchSeeds from './SearchSeeds';
 
-import { authenticate, getRecommendations, getArtists, getTracks } from '../modules/Spotify.js';
+import { authenticate, getRecommendations, getArtists, getTracks, Seeds } from '../modules/Spotify';
 
 import Cookies from 'js-cookie';
 import { Redirect } from 'react-router-dom';
+import { Playlist } from './Playlists';
 
 const { Panel } = Collapse;
 const { Title } = Typography;
@@ -44,10 +45,21 @@ const checkStateStored = () => {
   );
 };
 
-export default function Results(props) {
+const Results = (props?: {
+  location?: { state?: { seed?: React.SetStateAction<Seeds>; playlist?: { id: string; name: string } } };
+}) => {
   const [accessToken] = useState(Cookies.get('access_token'));
-  const [songs, setSongs] = useState([]);
-  const [playlist, setPlaylist] = useState(null);
+  const [songs, setSongs] = useState<
+    {
+      uri: string;
+      id: string;
+      preview_url: string;
+      name: string;
+      artists: { name: string }[];
+      album: { images: { url: string }[] };
+    }[]
+  >([]);
+  const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('remixr');
   const [generatedPlaylistLink, setGeneratedPlaylistLink] = useState();
@@ -61,8 +73,8 @@ export default function Results(props) {
   const [acousticness, setAcousticness] = useState({ min: 0, max: 1 });
   const [valence, setValence] = useState({ min: 0, max: 1 });
   const [tempo, setTempo] = useState({ min: 50, max: 200 });
-  const [seeds, setSeeds] = useState();
-  const [seedColors, setSeedColors] = useState({});
+  const [seeds, setSeeds] = useState<Seeds>({ artists: [], tracks: [] });
+  const [seedColors, setSeedColors] = useState<any>({});
 
   /**
    * Save state to localstorage before redirecting to login page. Used for maintaining the same playlist items after being logged in
@@ -82,7 +94,7 @@ export default function Results(props) {
     localStorage.setItem('seedColors', JSON.stringify(seedColors));
 
     const URI = process.env.REACT_APP_API_URL;
-    window.location = `${URI}/login?redirectTo=results`;
+    window.location.href = `${URI}/login?redirectTo=results`;
   };
 
   /**
@@ -113,18 +125,18 @@ export default function Results(props) {
     setLoading(true);
     initialFetchComplete.current = false;
 
-    setSongs(JSON.parse(localStorage.getItem('songs')));
-    setPlaylist(JSON.parse(localStorage.getItem('playlist')));
-    setName(JSON.parse(localStorage.getItem('name')));
-    setCount(JSON.parse(localStorage.getItem('count')));
-    setPopularity(JSON.parse(localStorage.getItem('popularity')));
-    setDanceability(JSON.parse(localStorage.getItem('danceability')));
-    setEnergy(JSON.parse(localStorage.getItem('energy')));
-    setAcousticness(JSON.parse(localStorage.getItem('acousticness')));
-    setValence(JSON.parse(localStorage.getItem('valence')));
-    setTempo(JSON.parse(localStorage.getItem('tempo')));
-    setSeeds(JSON.parse(localStorage.getItem('seeds')));
-    setSeedColors(JSON.parse(localStorage.getItem('seedColors')));
+    setSongs(JSON.parse(localStorage.getItem('songs') ?? ''));
+    setPlaylist(JSON.parse(localStorage.getItem('playlist') ?? ''));
+    setName(JSON.parse(localStorage.getItem('name') ?? ''));
+    setCount(JSON.parse(localStorage.getItem('count') ?? ''));
+    setPopularity(JSON.parse(localStorage.getItem('popularity') ?? ''));
+    setDanceability(JSON.parse(localStorage.getItem('danceability') ?? ''));
+    setEnergy(JSON.parse(localStorage.getItem('energy') ?? ''));
+    setAcousticness(JSON.parse(localStorage.getItem('acousticness') ?? ''));
+    setValence(JSON.parse(localStorage.getItem('valence') ?? ''));
+    setTempo(JSON.parse(localStorage.getItem('tempo') ?? ''));
+    setSeeds(JSON.parse(localStorage.getItem('seeds') ?? ''));
+    setSeedColors(JSON.parse(localStorage.getItem('seedColors') ?? ''));
 
     setLoading(false);
   };
@@ -217,9 +229,9 @@ export default function Results(props) {
       // To prevent effect from refreshing songlist while restoring from localStorage
       console.log('Running seeds effect');
       setLoading(true);
-      setGeneratedPlaylistLink(null);
+      setGeneratedPlaylistLink(undefined);
 
-      let parameters = {
+      const parameters = {
         popularity,
         danceability,
         energy,
@@ -229,11 +241,11 @@ export default function Results(props) {
       };
 
       getRecommendations(accessToken, parameters, seeds, count)
-        .then((songs) => {
+        .then(songs => {
           setSongs(songs);
           setLoading(false);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
           setError(true);
         });
@@ -252,14 +264,14 @@ export default function Results(props) {
       seeds.tracks &&
       (async () => {
         let items = [...seeds.artists, ...seeds.tracks];
-        let promiseArray = [...seeds.artists, ...seeds.tracks].map((item) =>
+        let promiseArray = [...seeds.artists, ...seeds.tracks].map(item =>
           Vibrant.from(item.image)
             .getPalette()
-            .then((palette) => palette.Vibrant._rgb.toString())
+            .then(palette => palette.Vibrant?.getRgb().toString())
         );
         let colors = await Promise.all(promiseArray);
 
-        let colorStyles = {};
+        let colorStyles: any = {};
 
         for (let i = 0; i < items.length; i++) {
           colorStyles[items[i].id] = `rgba(${colors[i]},0.6)`;
@@ -281,24 +293,25 @@ export default function Results(props) {
     });
 
     const url = process.env.REACT_APP_API_URL + '/save';
+
     transport
       .post(url, {
         name,
-        tracks: songs.map((item) => item.uri),
+        tracks: songs.map(item => item.uri),
       })
       .then(
-        (response) => {
+        response => {
           console.log('Saved playlist');
           console.log(response);
           setGeneratedPlaylistLink(response.data.link);
         },
-        (error) => {
+        error => {
           console.log(error);
         }
       );
   };
 
-  const removeSeed = (item, type) => {
+  const removeSeed = (item: { name: string; id: string; image: string }, type: string) => {
     ReactGA.event({
       category: 'Seeds',
       action: 'Remove seed',
@@ -314,13 +327,13 @@ export default function Results(props) {
       });
     } else {
       setSeeds({
-        artists: type === 'artist' ? seeds.artists.filter((artist) => artist.id !== item.id) : seeds.artists,
-        tracks: type === 'track' ? seeds.tracks.filter((track) => track.id !== item.id) : seeds.tracks,
+        artists: type === 'artist' ? seeds.artists.filter(artist => artist.id !== item.id) : seeds.artists,
+        tracks: type === 'track' ? seeds.tracks.filter(track => track.id !== item.id) : seeds.tracks,
       });
     }
   };
 
-  const addSeed = (item, type) => {
+  const addSeed = (item: { name: string; id: string; image: string }, type: string) => {
     if (seeds.artists.length + seeds.tracks.length >= 5) {
       message.error('Cannot add more than five seeds');
       ReactGA.event({
@@ -340,7 +353,7 @@ export default function Results(props) {
     <Space className="tagsList" size={1}>
       {seeds &&
         seeds.artists &&
-        seeds.artists.map((artist) => (
+        seeds.artists.map(artist => (
           <Tag
             style={
               seedColors &&
@@ -351,7 +364,7 @@ export default function Results(props) {
             className="seedTag"
             key={artist.id}
             closable
-            onClose={(e) => {
+            onClose={(e: React.SyntheticEvent) => {
               e.preventDefault();
               removeSeed(artist, 'artist');
             }}
@@ -365,13 +378,13 @@ export default function Results(props) {
 
       {seeds &&
         seeds.tracks &&
-        seeds.tracks.map((track) => (
+        seeds.tracks.map(track => (
           <Tag
             className="seedTag"
             style={seedColors && seedColors[track.id] && { backgroundColor: seedColors[track.id] }}
             key={track.id}
             closable
-            onClose={(e) => {
+            onClose={(e: React.SyntheticEvent) => {
               e.preventDefault();
               removeSeed(track, 'track');
             }}
@@ -481,4 +494,6 @@ export default function Results(props) {
       </Row>
     </div>
   );
-}
+};
+
+export default Results;
