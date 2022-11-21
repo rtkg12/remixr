@@ -2,7 +2,7 @@ import React from 'react';
 import { Result, Button } from 'antd';
 import ReactGA from 'react-ga';
 
-export default function PlaylistSuccessPage(props) {
+const PlaylistSuccessPage = (props: { link: string | undefined }) => {
   return (
     <Result
       className="rounded-component"
@@ -31,4 +31,6 @@ export default function PlaylistSuccessPage(props) {
       ]}
     />
   );
-}
+};
+
+export default PlaylistSuccessPage;

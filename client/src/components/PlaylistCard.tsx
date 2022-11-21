@@ -2,13 +2,14 @@ import React from 'react';
 import { Col, Card } from 'antd';
 import { Link } from 'react-router-dom';
 import ReactGA from 'react-ga';
+import { Playlist } from './Playlists';
 
 const { Meta } = Card;
 
 const DEFAULT_IMAGE =
   'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Simple_Music.svg/1024px-Simple_Music.svg.png';
 
-export default function PlaylistCard(props) {
+const PlaylistCard = (props: { playlist: Playlist }) => {
   const imageURL = props.playlist.image && props.playlist.image !== '' ? props.playlist.image : DEFAULT_IMAGE;
 
   let image = (
@@ -52,4 +53,6 @@ export default function PlaylistCard(props) {
       </Link>
     </Col>
   );
-}
+};
+
+export default PlaylistCard;

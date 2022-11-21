@@ -4,12 +4,16 @@ import ReactGA from 'react-ga';
 
 const { Title } = Typography;
 
-function SavePlaylist(props) {
+const SavePlaylist = (props: {
+  name: string;
+  setName: (name: string) => void;
+  isLoggedIn: boolean;
+  saveHandler: React.MouseEventHandler<HTMLElement> | undefined;
+  saveStateAndLogin: React.MouseEventHandler<HTMLElement> | undefined;
+}) => {
   return (
     <div className="rounded-component" style={{ padding: '1em', textAlign: 'center' }}>
-      <Title level={3} align="center">
-        Save Playlist
-      </Title>
+      <Title level={3}>Save Playlist</Title>
 
       <Input
         className="rounded"
@@ -20,7 +24,6 @@ function SavePlaylist(props) {
           ReactGA.event({
             category: 'Save playlist',
             action: 'Change name',
-            value: value,
           });
         }}
       />
@@ -42,6 +45,6 @@ function SavePlaylist(props) {
       )}
     </div>
   );
-}
+};
 
 export default React.memo(SavePlaylist);

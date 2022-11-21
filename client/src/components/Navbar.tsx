@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { Affix, Button } from 'antd';
-import Cookies from 'js-cookie';
+import { Affix } from 'antd';
 import { Redirect } from 'react-router-dom';
-import ReactGA from 'react-ga';
-import { FaSpotify } from 'react-icons/fa';
 import NavButton from './NavButton';
 
 const Navbar = () => {
-  const [redirectPath, setRedirectPath] = useState(null);
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
   return (
     <Affix offsetTop={0}>

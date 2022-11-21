@@ -9,16 +9,22 @@ import Navbar from './Navbar';
 import ErrorScreen from './ErrorScreen';
 import PlaylistCard from './PlaylistCard';
 
+export interface Playlist {
+  id: string;
+  name: string;
+  image?: string;
+}
+
 const { Title } = Typography;
 
 const transport = axios.create({
   withCredentials: true,
 });
 
-export default function Playlist() {
+const Playlist = () => {
   const [accessToken] = useState(Cookies.get('access_token'));
-  const [playlists, setPlaylists] = useState([]);
-  const [filteredPlaylists, setFilteredPlaylists] = useState([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [filteredPlaylists, setFilteredPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -28,12 +34,12 @@ export default function Playlist() {
       let url = process.env.REACT_APP_API_URL + '/playlists';
 
       transport.get(url).then(
-        (response) => {
+        response => {
           setPlaylists(response.data.playlists);
           setFilteredPlaylists(response.data.playlists);
           setLoading(false);
         },
-        (error) => {
+        error => {
           setError(true);
         }
       );
@@ -44,8 +50,8 @@ export default function Playlist() {
     return <Redirect to="/" />;
   }
 
-  const filter = (searchTerm) => {
-    setFilteredPlaylists(playlists.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+  const filter = (searchTerm: string) => {
+    setFilteredPlaylists(playlists.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
     ReactGA.event({
       category: 'Playlist',
       action: 'Search playlists',
@@ -72,11 +78,13 @@ export default function Playlist() {
         <Row gutter={[16, 24]}>
           {loading && <Skeleton active />}
           {filteredPlaylists &&
-            filteredPlaylists.map((item) => {
+            filteredPlaylists.map(item => {
               return <PlaylistCard playlist={item} key={item.id} />;
             })}
         </Row>
       </div>
     </div>
   );
-}
+};
+
+export default Playlist;

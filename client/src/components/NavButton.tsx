@@ -5,7 +5,13 @@ import { Redirect } from 'react-router-dom';
 import ReactGA from 'react-ga';
 import Cookies from 'js-cookie';
 
-const NavButton = (props) => {
+const NavButton = ({
+  setAccessToken,
+  setRefreshToken,
+}: {
+  setAccessToken?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setRefreshToken?: React.Dispatch<React.SetStateAction<string | undefined>>;
+}) => {
   const [redirectPath, setRedirectPath] = useState(null);
   const accessToken = Cookies.get('access_token');
   const isLoggedIn = accessToken && accessToken !== '';
@@ -21,10 +27,10 @@ const NavButton = (props) => {
     Cookies.remove('refresh_token');
     Cookies.remove('userID');
 
-    props.setAccessToken && props.setAccessToken(null);
-    props.setRefreshToken && props.setRefreshToken(null);
+    setAccessToken && setAccessToken(undefined);
+    setRefreshToken && setRefreshToken(undefined);
 
-    window.location = '/';
+    window.location.href = '/';
   };
 
   const login = () => {
@@ -35,7 +41,7 @@ const NavButton = (props) => {
     });
 
     const URI = process.env.REACT_APP_API_URL;
-    window.location = `${URI}/login`;
+    window.location.href = `${URI}/login`;
   };
 
   if (redirectPath) {

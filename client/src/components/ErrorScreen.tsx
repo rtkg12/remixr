@@ -3,7 +3,7 @@ import { Result, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import ReactGA from 'react-ga';
 
-export default function ErrorScreen() {
+const ErrorScreen = () => {
   ReactGA.event({
     category: 'Error',
     action: 'Error screen displayed',
@@ -24,3 +24,5 @@ export default function ErrorScreen() {
     </div>
   );
 }
+
+export default ErrorScreen;

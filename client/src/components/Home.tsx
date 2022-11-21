@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Typography, Switch } from 'antd';
+import { Button, Typography } from 'antd';
 import Cookies from 'js-cookie';
-import { Link } from 'react-router-dom';
 import Footer from './Footer';
 import SearchSeeds from './SearchSeeds';
 import axios from 'axios';
@@ -15,7 +14,7 @@ const transport = axios.create({
   withCredentials: true,
 });
 
-function Home() {
+const Home = () => {
   const [accessToken, setAccessToken] = useState(Cookies.get('access_token'));
   const [refreshToken, setRefreshToken] = useState(Cookies.get('refresh_token'));
 
@@ -36,8 +35,8 @@ function Home() {
         label: 'Home Page',
       });
     } catch (e) {
-      setAccessToken(null);
-      setRefreshToken(null);
+      setAccessToken(undefined);
+      setRefreshToken(undefined);
     }
   };
 
@@ -64,7 +63,6 @@ function Home() {
           <div
             className="searchBox"
             style={{
-              align: 'center',
               margin: '0 auto',
             }}
           >
@@ -84,9 +82,9 @@ function Home() {
 
               if (!accessToken) {
                 const URI = process.env.REACT_APP_API_URL;
-                window.location = `${URI}/login?redirectTo=playlists`;
+                window.location.href = `${URI}/login?redirectTo=playlists`;
               } else {
-                window.location = '/playlists';
+                window.location.href = '/playlists';
               }
             }}
           >
