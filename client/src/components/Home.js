@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Typography, Switch } from 'antd';
+import { Button, Typography, Switch } from 'antd';  //Switch is not used in this file 
 import Cookies from 'js-cookie';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';       //Link is not used in this file
 import Footer from './Footer';
 import SearchSeeds from './SearchSeeds';
 import axios from 'axios';
